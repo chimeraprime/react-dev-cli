@@ -13,25 +13,14 @@ class Component {
     this.basePath = fs.existsSync('./components')
       ? './components'
       : '';
-    this.path = `${this.basePath}/${this.component}/${this.component}`;
-  }
-
-  getDirectoryPath() {
-    const strArr = this.path.split('/');
-    strArr.splice(strArr.length - 1, 1);
-    const indexPath = strArr.join('/');
-
-    return indexPath;
-  }
-
-  writeComponent(template) {
-    this.writeComponentStructure(template, this.component);
+    this.directoryPath = `${this.basePath}/${this.component}`;
+    this.componentPath = `${this.directoryPath}/${this.component}`;
   }
 
   generateComponent() {
     const template = this.buildTemplate();
 
-    this.writeComponent(template);
+    this.writeComponentStructure(template);
   }
 
   buildTemplate() {
@@ -52,12 +41,10 @@ class Component {
   }
 
   writeComponentStructure(template) {
-    if (!this.path) throw new Error('You have to set path first!');
-
-    if (!fs.existsSync(`${this.path}.js`)) {
+    if (!fs.existsSync(`${this.componentPath}.js`)) {
       this.writeComponentFile(template);
     } else {
-      console.log(`Component ${this.component} allready exists at ${this.path}.js, choose another name if you want to create a new component`.red);
+      console.log(`Component ${this.component} allready exists at ${this.componentPath}.js, choose another name if you want to create a new component`.red);
     }
 
     if (this.options.style) {
@@ -65,35 +52,35 @@ class Component {
     }
 
     this.writeComponentIndexFile();
-    this.updateComponentsIndexFile();
+    this.manageComponentsIndexFile();
   }
 
   writeComponentFile(template) {
-    fs.outputFile(`${this.path}.js`, template, err => {
+    fs.outputFile(`${this.componentPath}.js`, template, err => {
       if (err) throw err;
       replace({
         regex: ':className',
         replacement: this.component,
-        paths: [`${this.path}.js`],
+        paths: [`${this.componentPath}.js`],
         recursive: false,
         silent: true,
       });
-      console.log(`Component ${this.component} created at ${this.path}.js`.cyan);
+      console.log(`Component ${this.component} created at ${this.componentPath}.js`.cyan);
     });
   }
 
   writeStylesFile() {
-    if (!fs.existsSync(`${this.path}.scss`)) {
+    if (!fs.existsSync(`${this.componentPath}.scss`)) {
       console.log('creating syles');
-      fs.outputFileSync(`${this.path}.scss`, '');
-      console.log(`Stylesheet ${this.component} created at ${this.path}.scss`.cyan);
+      fs.outputFileSync(`${this.componentPath}.scss`, '');
+      console.log(`Stylesheet ${this.component} created at ${this.componentPath}.scss`.cyan);
     } else {
-      console.log(`Stylesheet ${this.component} allready exists at ${this.path}.scss, choose another name if you want to create a new stylesheet`.red);
+      console.log(`Stylesheet ${this.component} allready exists at ${this.componentPath}.scss, choose another name if you want to create a new stylesheet`.red);
     }
   }
 
   writeComponentIndexFile() {
-    const indexPath = this.getDirectoryPath() + '/index.js';
+    const indexPath = this.directoryPath + '/index.js';
 
     if (!fs.existsSync(indexPath)) {
       fs.outputFile(indexPath, templates.indexes.default, err => {
@@ -112,27 +99,46 @@ class Component {
     }
   }
 
-  updateComponentsIndexFile() {
+  manageComponentsIndexFile() {
     const indexPath = this.basePath + '/index.js';
-    const indexContent = fs.readFileSync(indexPath, 'utf8');
-    const indexContentLines = indexContent.split('\n').filter(line => !!line);
-    const exportLine = templates.indexes.named
+    const content = templates.indexes.named
       .replace(/:className/gi, capitalize(this.component))
       .replace(/:basePath/gi, capitalize(this.basePath));
 
-    if (!indexContentLines.includes(exportLine)) {
-      indexContentLines.push(exportLine);
-
-      const indexContentToSave = indexContentLines.join('\n') + '\n';
-
-      fs.outputFile(indexPath, indexContentToSave, err => {
-        if (err) throw err;
-
-        console.log(`Component ${this.component} has been exported`.cyan);
-      });
+    if (fs.existsSync(indexPath)) {
+      this.updateComponentsIndexFile(indexPath, content);
     } else {
-      console.log(`Component ${this.component} has been already exported`.red);
+      this.createComponentsIndexFile(indexPath, content);
     }
+  }
+
+  createComponentsIndexFile(path, content) {
+    fs.outputFile(path, content, err => {
+      if (err) throw err;
+      console.log(`Index file for ${this.component} created at ${path}`.cyan);
+    });
+  }
+
+  updateComponentsIndexFile(path, content) {
+    fs.readFile(path, 'utf8', (err, indexContent) => {
+      if (err) throw err;
+
+      const indexContentLines = indexContent.split('\n').filter(line => !!line);
+
+      if (!indexContentLines.includes(content)) {
+        indexContentLines.push(content);
+
+        const indexContentToSave = indexContentLines.join('\n') + '\n';
+
+        fs.outputFile(path, indexContentToSave, err => {
+          if (err) throw err;
+
+          console.log(`Component ${this.component} has been exported`.cyan);
+        });
+      } else {
+        console.log(`Component ${this.component} has been already exported`.red);
+      }
+    });
   }
 }
 
