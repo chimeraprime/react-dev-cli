@@ -8,35 +8,23 @@ const { capitalize } = require('./utils');
 
 class Component {
   constructor(component, options) {
-    this.component = component;
+    this.component = capitalize(component);
     this.options = options;
+    this.basePath = fs.existsSync('./components')
+      ? './components'
+      : '';
+    this.path = `${this.basePath}/${this.component}/${this.component}`;
   }
 
-  setPath() {
-    let path = '';
-    if (fs.existsSync('./components')) {
-      path = `./components/${capitalize(this.component)}`;
-    }
-    if (this.options.nofolder) {
-      const strArr = path.split('/');
-      strArr.splice(strArr.length - 1, 1);
-      path = strArr.join('/');
-    }
+  getDirectoryPath() {
+    const strArr = this.path.split('/');
+    strArr.splice(strArr.length - 1, 1);
+    const indexPath = strArr.join('/');
 
-    const componentTree = this.component.split('/');
-    const componentName = componentTree[componentTree.length - 1];
-
-    if (path) {
-      path = path + '/' + capitalize(componentName);
-    } else {
-      path = capitalize(componentName);
-    }
-
-    this.path = path;
+    return indexPath;
   }
 
   writeComponent(template) {
-    this.setPath();
     this.writeComponentStructure(template, this.component);
   }
 
@@ -49,11 +37,12 @@ class Component {
   buildTemplate() {
     const imports = [templates.imports.react, templates.imports.propTypes];
 
+    if (this.options.withConnect) {
+      imports.push(templates.imports.connect);
+    }
+
     if (this.options.style) {
       imports.push('\n' + templates.imports.stylesheet);
-    }
-    if (this.options.withConnect) {
-      imports.push('\n' + templates.imports.connect);
     }
 
     const body = this.options.functional ? [templates.functional] : [templates.main].join('\n');
@@ -65,17 +54,18 @@ class Component {
   writeComponentStructure(template) {
     if (!this.path) throw new Error('You have to set path first!');
 
-    if (this.options.style) {
-      this.writeStylesFile();
-    }
-    if (!this.options.noIndex) {
-      this.writeIndexFile();
-    }
     if (!fs.existsSync(`${this.path}.js`)) {
       this.writeComponentFile(template);
     } else {
       console.log(`Component ${this.component} allready exists at ${this.path}.js, choose another name if you want to create a new component`.red);
     }
+
+    if (this.options.style) {
+      this.writeStylesFile();
+    }
+
+    this.writeComponentIndexFile();
+    this.updateComponentsIndexFile();
   }
 
   writeComponentFile(template) {
@@ -83,7 +73,7 @@ class Component {
       if (err) throw err;
       replace({
         regex: ':className',
-        replacement: capitalize(this.component),
+        replacement: this.component,
         paths: [`${this.path}.js`],
         recursive: false,
         silent: true,
@@ -102,22 +92,47 @@ class Component {
     }
   }
 
-  writeIndexFile() {
-    const strArr = this.path.split('/');
-    strArr.splice(strArr.length - 1, 1, 'index.js');
-    const indexPath = strArr.join('/');
+  writeComponentIndexFile() {
+    const indexPath = this.getDirectoryPath() + '/index.js';
 
-    fs.outputFile(indexPath, templates.index, err => {
-      if (err) throw err;
-      replace({
-        regex: ':className',
-        replacement: capitalize(this.component),
-        paths: [indexPath],
-        recursive: false,
-        silent: true,
+    if (!fs.existsSync(indexPath)) {
+      fs.outputFile(indexPath, templates.indexes.default, err => {
+        if (err) throw err;
+        replace({
+          regex: ':className',
+          replacement: this.component,
+          paths: [indexPath],
+          recursive: false,
+          silent: true,
+        });
+        console.log(`Index file for ${this.component} created at ${indexPath}`.cyan);
       });
-      console.log(`Index file for ${this.component} created at ${indexPath}`.cyan);
-    });
+    } else {
+      console.log(`Index file for ${this.component} has been already added`.red);
+    }
+  }
+
+  updateComponentsIndexFile() {
+    const indexPath = this.basePath + '/index.js';
+    const indexContent = fs.readFileSync(indexPath, 'utf8');
+    const indexContentLines = indexContent.split('\n').filter(line => !!line);
+    const exportLine = templates.indexes.named
+      .replace(/:className/gi, capitalize(this.component))
+      .replace(/:basePath/gi, capitalize(this.basePath));
+
+    if (!indexContentLines.includes(exportLine)) {
+      indexContentLines.push(exportLine);
+
+      const indexContentToSave = indexContentLines.join('\n') + '\n';
+
+      fs.outputFile(indexPath, indexContentToSave, err => {
+        if (err) throw err;
+
+        console.log(`Component ${this.component} has been exported`.cyan);
+      });
+    } else {
+      console.log(`Component ${this.component} has been already exported`.red);
+    }
   }
 }
 
