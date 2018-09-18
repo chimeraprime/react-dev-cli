@@ -1,12 +1,13 @@
 const main = `
 class :className extends React.PureComponent {
-  constructor(props){
-    super(props);
+  state = {
+
   }
-  render(){
+
+  render() {
     return (
       <div className=":className">
-    
+
       </div>
     )
   }
@@ -40,12 +41,15 @@ const exported = {
   withConnect: 'export default connect(state => ({\n\n}), {\n\n})(:className);',
 };
 
-const index = "export { default } from './:className'";
+const indexes = {
+  default: "export { default } from './:className'",
+  named: "export { default as :className } from ':basePath/:className'",
+};
 
 module.exports = {
-  main: main,
-  imports: imports,
-  exported: exported,
-  functional: functional,
-  index,
+  main,
+  imports,
+  exported,
+  functional,
+  indexes,
 };
