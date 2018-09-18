@@ -2,9 +2,9 @@ const fs = require('fs-extra');
 const replace = require('replace');
 require('colors');
 
-const templates = require('./templates/component');
+const templates = require('../templates/component');
 
-const { capitalize } = require('./utils');
+const { capitalize } = require('../utils');
 
 class Component {
   constructor(component, options) {
