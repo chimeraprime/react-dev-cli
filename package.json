@@ -4,8 +4,8 @@
   "description": "Command tool to improve React development",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint ./",
+    "test": "mocha $(find . -name '*.spec.js' ! -ipath '*node_modules*')",
+    "test:watch": "yarn test --watch-extensions js -w",
     "lint:fix": "eslint ./ --fix"
   },
   "keywords": [
@@ -15,13 +15,16 @@
   "author": "Daniel Siwek",
   "license": "MIT",
   "dependencies": {
+    "chai": "^4.1.2",
     "colors": "^1.3.2",
     "commander": "^2.18.0",
     "fs-extra": "^7.0.0",
-    "replace": "^1.0.0"
+    "mocha": "^5.2.0",
+    "replace": "^1.0.0",
+    "sinon": "^6.3.4"
   },
   "devDependencies": {
-    "eslint": "^5.6.0",
-    "@chimeraprime/eslint-config-chimera-prime": "1.0.4"
+    "@chimeraprime/eslint-config-chimera-prime": "1.0.4",
+    "eslint": "^5.6.0"
   }
 }
