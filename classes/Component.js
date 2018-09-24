@@ -1,6 +1,5 @@
 const fs = require('fs-extra');
 const replace = require('replace');
-require('colors');
 
 const templates = require('../templates/component');
 
