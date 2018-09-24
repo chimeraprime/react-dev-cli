@@ -24,7 +24,7 @@ class Component {
   }
 
   buildTemplate() {
-    const imports = [templates.imports.react, templates.imports.propTypes];
+    const imports = [templates.imports.react];
 
     if (this.options.withConnect) {
       imports.push(templates.imports.connect);

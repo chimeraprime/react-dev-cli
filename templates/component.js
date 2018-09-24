@@ -12,9 +12,6 @@ class :className extends React.PureComponent {
     )
   }
 }
-
-:className.propTypes = {
-}
 `;
 
 const functional = `
@@ -24,14 +21,10 @@ const :className = () => {
     </div>
   )
 }
-
-:className.propTypes = {
-}
 `;
 
 const imports = {
   react: "import React from 'react';",
-  propTypes: "import PropTypes from 'prop-types';",
   stylesheet: "import './:className.scss';",
   connect: "import { connect } from 'react-redux';",
 };
