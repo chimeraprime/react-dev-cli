@@ -1,4 +1,4 @@
-const Component = require('../Component');
+const Component = require('../classes/Component');
 
 function generateComponent(component, cmd) {
   const availableOptions = Object.keys(cmd._events).map(option => option.split(':')[1]);
