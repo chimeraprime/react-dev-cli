@@ -8,7 +8,7 @@ const { capitalize } = require('../utils');
 class Component {
   constructor(component, options) {
     this.component = capitalize(component);
-    this.options = options;
+    this.options = options || {};
     this.basePath = fs.existsSync('./components')
       ? './components'
       : '';

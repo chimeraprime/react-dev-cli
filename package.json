@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha $(find . -name '*.spec.js' ! -ipath '*node_modules*')",
-    "test:watch": "yarn test --watch-extensions js -w",
+    "test:watch": "yarn test -- -w",
     "lint:fix": "eslint ./ --fix"
   },
   "keywords": [
@@ -20,6 +20,7 @@
     "commander": "^2.18.0",
     "fs-extra": "^7.0.0",
     "mocha": "^5.2.0",
+    "mock-fs": "^4.7.0",
     "replace": "^1.0.0",
     "sinon": "^6.3.4"
   },
