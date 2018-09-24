@@ -3,15 +3,17 @@ const replace = require('replace');
 
 const templates = require('../templates/component');
 
+const { getConfig } = require('../config');
 const { capitalize } = require('../utils');
 
+const projectConfig = getConfig();
 class Component {
   constructor(component, options) {
     this.component = capitalize(component);
     this.options = options;
-    this.basePath = fs.existsSync('./components')
-      ? './components'
-      : '';
+    this.basePath = fs.existsSync(`${projectConfig.root}/components`)
+      ? `${projectConfig.root}/components`
+      : projectConfig.root;
     this.directoryPath = `${this.basePath}/${this.component}`;
     this.componentPath = `${this.directoryPath}/${this.component}`;
   }
