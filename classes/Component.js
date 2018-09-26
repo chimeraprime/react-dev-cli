@@ -122,7 +122,14 @@ class Component {
     fs.readFile(path, 'utf8', (err, indexContent) => {
       if (err) throw err;
 
-      const indexContentLines = indexContent.split('\n').filter(line => !!line);
+      const indexContentLines = indexContent.split('\n').filter((item, index, arr) => {
+        const isLastItem = index === arr.length - 1;
+        if (isLastItem && !item) {
+          return false;
+        }
+
+        return true;
+      });
 
       if (!indexContentLines.includes(content)) {
         indexContentLines.push(content);
