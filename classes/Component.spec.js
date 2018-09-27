@@ -121,7 +121,7 @@ describe('Component', () => {
 
       it('without component file if already exists', () => {
         mock({
-          [`/${componentName}/${componentName}.js`]: Buffer.from([8, 6, 7, 5, 3, 0, 9]),
+          [`/${componentName}/${componentName}.js`]: mock.file({ content: 'sample file content' }),
         });
 
         component.writeComponentStructure('sample template');
@@ -159,7 +159,7 @@ describe('Component', () => {
 
     it('should not create scss file if already exists', () => {
       mock({
-        [componentPath]: Buffer.from([8, 6, 7, 5, 3, 0, 9]),
+        [componentPath]: mock.file({ content: 'sample file content' }),
       });
 
       component.writeStylesFile();
@@ -187,7 +187,7 @@ describe('Component', () => {
 
     it('should not create index file for component if already exists', () => {
       mock({
-        [indexPath]: Buffer.from([8, 6, 7, 5, 3, 0, 9]),
+        [indexPath]: mock.file({ content: 'sample file content' }),
       });
 
       component.writeComponentIndexFile();
