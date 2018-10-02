@@ -11,27 +11,70 @@ const Component = require('./Component');
 const templates = require('../templates/component');
 
 describe('Component', () => {
-  const componentName = 'ComponentName';
+  const componentName = 'List';
+  const subComponentName = 'ListItem';
 
   afterEach(mock.restore);
   it('should be a class', () => {
     expect(Component.prototype.constructor).to.be.a('function');
   });
 
+  describe('should have set proper properties', () => {
+    describe('witout config', () => {
+      describe('componentsPath', () => {
+        it('if components directory exists', () => {
+          mock({
+            'components': {},
+          });
+          const component = new Component();
 
-  it('should have set base path to components if directory exists', () => {
-    mock({
-      'components': {},
+          expect(component.componentsPath).to.equal('components');
+        });
+
+        it('if components directory doesn\'t exist', () => {
+          const component = new Component();
+
+          expect(component.componentsPath).to.equal('.');
+        });
+      });
+
+      describe('componentName', () => {
+        it('if component is on the first level', () => {
+          const component = new Component(componentName);
+
+          expect(component.componentName).to.equal(componentName);
+        });
+
+        it('if component is on the deeper level', () => {
+          const name = 'Header';
+          const component = new Component(`${componentName}/${subComponentName}/${name}`);
+
+          expect(component.componentName).to.equal(name);
+        });
+      });
+
+      describe('folderPath', () => {
+        it('if components directory exists', () => {
+          const name = 'Header';
+          const expectedPath = `${componentName}/${subComponentName}/${name}`;
+          const component = new Component(expectedPath);
+
+          expect(component.folderPath).to.equal(expectedPath);
+        });
+
+        it('if components directory doesn\'t exist', () => {
+          mock({
+            'components': {},
+          });
+          const name = 'ListItem';
+          const componentPath = `${componentName}/List/${name}`;
+          const expectedPath = `components/${componentPath}`;
+          const component = new Component(componentPath);
+
+          expect(component.folderPath).to.equal(expectedPath);
+        });
+      });
     });
-    const component = new Component();
-
-    expect(component.basePath).to.equal('./components');
-  });
-
-  it('should have set base path to root if components directory doesn\'t exist', () => {
-    const component = new Component();
-
-    expect(component.basePath).to.equal('');
   });
 
   describe('[buildTemplate]', () => {
@@ -109,7 +152,7 @@ describe('Component', () => {
     });
 
     describe('should write component structure', () => {
-      it('with component file if doesn\'t exist', () => {
+      it('without styles file', () => {
         const template = 'sample template';
 
         component.writeComponentStructure(template);
@@ -117,16 +160,6 @@ describe('Component', () => {
         expect(writeComponentFileStub).to.have.been.calledWith(template);
         expect(writeComponentIndexFileStub).to.have.been.called;
         expect(manageComponentsIndexFileStub).to.have.been.called;
-      });
-
-      it('without component file if already exists', () => {
-        mock({
-          [`/${componentName}/${componentName}.js`]: mock.file({ content: 'sample file content' }),
-        });
-
-        component.writeComponentStructure('sample template');
-
-        expect(writeComponentFileStub).to.have.not.been.called;
       });
 
       it('with styles file', () => {
@@ -140,8 +173,45 @@ describe('Component', () => {
     });
   });
 
+  describe('[writeComponentFile]', () => {
+    const expectedPath = `${process.cwd()}/${componentName}/${componentName}.js`;
+    let outputFileStub;
+    let existsSyncStub;
+    let component;
+
+    beforeEach(() => {
+      outputFileStub = sinon.stub(fs, 'outputFile');
+      existsSyncStub = sinon.stub(fs, 'existsSync');
+      component = new Component(componentName);
+    });
+    afterEach(() => {
+      outputFileStub.restore();
+      existsSyncStub.restore();
+    });
+
+    it('should manage with proper path', () => {
+      component.writeComponentFile();
+
+      expect(outputFileStub).to.have.been.calledWith(expectedPath);
+    });
+
+    it('should write file if doesn\'t exist', () => {
+      existsSyncStub.callsFake(() => false);
+      component.writeComponentFile();
+
+      expect(outputFileStub).to.have.been.called;
+    });
+
+    it('should not write file if already exists', () => {
+      existsSyncStub.callsFake(() => true);
+      component.writeComponentFile();
+
+      expect(outputFileStub).to.have.not.been.called;
+    });
+  });
+
   describe('[writeStylesFile]', () => {
-    const componentPath = `/${componentName}/${componentName}.scss`;
+    const componentStylesPath = `${process.cwd()}/${componentName}/${componentName}.scss`;
     let outputFileSyncStub;
     let component;
 
@@ -154,12 +224,12 @@ describe('Component', () => {
     it('should create empty scss file if doesn\'t exist', () => {
       component.writeStylesFile();
 
-      expect(fs.outputFileSync).to.have.been.calledWith(componentPath, '');
+      expect(fs.outputFileSync).to.have.been.calledWith(componentStylesPath, '');
     });
 
     it('should not create scss file if already exists', () => {
       mock({
-        [componentPath]: mock.file({ content: 'sample file content' }),
+        [componentStylesPath]: mock.file({ content: 'sample file content' }),
       });
 
       component.writeStylesFile();
@@ -169,7 +239,7 @@ describe('Component', () => {
   });
 
   describe('[writeComponentIndexFile]', () => {
-    const indexPath = `/${componentName}/index.js`;
+    const indexPath = `${process.cwd()}/${componentName}/index.js`;
     let outputFileStub;
     let component;
 
@@ -197,10 +267,12 @@ describe('Component', () => {
   });
 
   describe('[manageComponentsIndexFile]', () => {
-    const indexPath = 'components/index.js';
+    const indexAbsolutePath = `${process.cwd()}/components/index.js`;
     let component;
     let updateComponentsIndexFileStub;
     let createComponentsIndexFileStub;
+    let existsSyncStub;
+
 
     beforeEach(() => {
       mock({
@@ -209,28 +281,28 @@ describe('Component', () => {
       component = new Component(componentName);
       updateComponentsIndexFileStub = sinon.stub(component, 'updateComponentsIndexFile');
       createComponentsIndexFileStub = sinon.stub(component, 'createComponentsIndexFile');
+      existsSyncStub = sinon.stub(fs, 'existsSync');
     });
     afterEach(() => {
       mock.restore();
+      existsSyncStub.restore();
     });
 
     it('should update components index file if already exists', () => {
-      mock({
-        components: {
-          ['index.js']: {},
-        },
-      });
+      existsSyncStub.callsFake(() => true);
 
       component.manageComponentsIndexFile();
 
-      expect(updateComponentsIndexFileStub).to.have.been.calledWithMatch(indexPath);
+      expect(updateComponentsIndexFileStub).to.have.been.calledWithMatch(indexAbsolutePath);
       expect(createComponentsIndexFileStub).to.have.not.been.called;
     });
 
     it('should create components index file if doesn\'t exist', () => {
+      existsSyncStub.callsFake(() => false);
+
       component.manageComponentsIndexFile();
 
-      expect(createComponentsIndexFileStub).to.have.been.calledWithMatch(indexPath);
+      expect(createComponentsIndexFileStub).to.have.been.calledWithMatch(indexAbsolutePath);
       expect(updateComponentsIndexFileStub).to.have.not.been.called;
     });
   });

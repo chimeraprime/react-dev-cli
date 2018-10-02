@@ -1,19 +1,26 @@
 const fs = require('fs-extra');
+const path = require('path');
 const replace = require('replace');
 
 const templates = require('../templates/component');
 
+const { getConfig } = require('../config');
 const { capitalize } = require('../utils');
 
+const projectConfig = getConfig();
 class Component {
-  constructor(component, options) {
-    this.component = capitalize(component);
+  constructor(component = '', options) {
+    const componentsPath = path.normalize(`${projectConfig.root}/components`);
+    const rootPath = path.normalize(projectConfig.root);
+    const componentDirs = component.split('/');
+
     this.options = options || {};
-    this.basePath = fs.existsSync('./components')
-      ? './components'
-      : '';
-    this.directoryPath = `${this.basePath}/${this.component}`;
-    this.componentPath = `${this.directoryPath}/${this.component}`;
+
+    this.componentName = componentDirs[componentDirs.length - 1];
+    this.componentPath = capitalize(component);
+    this.componentsPath = fs.existsSync(componentsPath) ? componentsPath : rootPath;
+    this.folderPath = path.normalize(`${this.componentsPath}/${this.componentPath}`);
+    this.filePath = path.normalize(`${this.folderPath}/${this.componentName}`);
   }
 
   generateComponent() {
@@ -40,11 +47,7 @@ class Component {
   }
 
   writeComponentStructure(template) {
-    if (!fs.existsSync(`${this.componentPath}.js`)) {
-      this.writeComponentFile(template);
-    } else {
-      console.log(`Component ${this.component} allready exists at ${this.componentPath}.js, choose another name if you want to create a new component`.red);
-    }
+    this.writeComponentFile(template);
 
     if (this.options.style) {
       this.writeStylesFile();
@@ -55,66 +58,76 @@ class Component {
   }
 
   writeComponentFile(template) {
-    fs.outputFile(`${this.componentPath}.js`, template, err => {
-      if (err) throw err;
-      replace({
-        regex: ':className',
-        replacement: this.component,
-        paths: [`${this.componentPath}.js`],
-        recursive: false,
-        silent: true,
+    const absolutePath = `${process.cwd()}/${this.filePath}.js`;
+
+    if (!fs.existsSync(absolutePath)) {
+      console.log('creating component file...');
+      fs.outputFile(absolutePath, template, err => {
+        if (err) throw err;
+        replace({
+          regex: ':className',
+          replacement: this.componentName,
+          paths: [`${this.filePath}.js`],
+          recursive: false,
+          silent: true,
+        });
+        console.log(`Component ${this.componentName} created at ${this.filePath}.js`.cyan);
       });
-      console.log(`Component ${this.component} created at ${this.componentPath}.js`.cyan);
-    });
+    } else {
+      console.log(`Component ${this.componentName} allready exists at ${this.filePath}.js, choose another name if you want to create a new component`.red);
+    }
   }
 
   writeStylesFile() {
-    if (!fs.existsSync(`${this.componentPath}.scss`)) {
-      console.log('creating syles');
-      fs.outputFileSync(`${this.componentPath}.scss`, '');
-      console.log(`Stylesheet ${this.component} created at ${this.componentPath}.scss`.cyan);
+    const stylesAbsolutePath = `${process.cwd()}/${this.filePath}.scss`;
+
+    if (!fs.existsSync(stylesAbsolutePath)) {
+      console.log('creating syles...');
+      fs.outputFileSync(stylesAbsolutePath, '');
+      console.log(`Stylesheet ${this.componentName} created at ${this.filePath}.scss`.cyan);
     } else {
-      console.log(`Stylesheet ${this.component} allready exists at ${this.componentPath}.scss, choose another name if you want to create a new stylesheet`.red);
+      console.log(`Stylesheet ${this.componentName} allready exists at ${this.filePath}.scss, choose another name if you want to create a new stylesheet`.red);
     }
   }
 
   writeComponentIndexFile() {
-    const indexPath = this.directoryPath + '/index.js';
+    const absoluteIndexPath = path.normalize(`${process.cwd()}/${this.folderPath}/index.js`);
 
-    if (!fs.existsSync(indexPath)) {
-      fs.outputFile(indexPath, templates.indexes.default, err => {
+    if (!fs.existsSync(absoluteIndexPath)) {
+      fs.outputFile(absoluteIndexPath, templates.indexes.default, err => {
         if (err) throw err;
         replace({
           regex: ':className',
-          replacement: this.component,
-          paths: [indexPath],
+          replacement: this.componentName,
+          paths: [absoluteIndexPath],
           recursive: false,
           silent: true,
         });
-        console.log(`Index file for ${this.component} created at ${indexPath}`.cyan);
+        console.log(`Index file for ${this.componentName} created at ${path}`.cyan);
       });
     } else {
-      console.log(`Index file for ${this.component} has been already added`.red);
+      console.log(`Index file for ${this.componentName} has been already added`.red);
     }
   }
 
   manageComponentsIndexFile() {
-    const indexPath = this.basePath + '/index.js';
+    const absoluteIndexPath = path.normalize(`${process.cwd()}/${this.componentsPath}/index.js`);
+    const exportFromPath = `./${this.componentPath}`;
     const content = templates.indexes.named
-      .replace(/:className/gi, capitalize(this.component))
-      .replace(/:basePath/gi, capitalize(this.basePath));
+      .replace(/:className/gi, capitalize(this.componentName))
+      .replace(/:basePath/gi, exportFromPath);
 
-    if (fs.existsSync(indexPath)) {
-      this.updateComponentsIndexFile(indexPath, content);
+    if (fs.existsSync(absoluteIndexPath)) {
+      this.updateComponentsIndexFile(absoluteIndexPath, content);
     } else {
-      this.createComponentsIndexFile(indexPath, content);
+      this.createComponentsIndexFile(absoluteIndexPath, content);
     }
   }
 
   createComponentsIndexFile(path, content) {
     fs.outputFile(path, content, err => {
       if (err) throw err;
-      console.log(`Index file for ${this.component} created at ${path}`.cyan);
+      console.log(`Index file for ${this.componentPath} created at ${path}`.cyan);
     });
   }
 
@@ -132,10 +145,10 @@ class Component {
         fs.outputFile(path, indexContentToSave, err => {
           if (err) throw err;
 
-          console.log(`Component ${this.component} has been exported`.cyan);
+          console.log(`Component ${this.componentPath} has been exported`.cyan);
         });
       } else {
-        console.log(`Component ${this.component} has been already exported`.red);
+        console.log(`Component ${this.componentPath} has been already exported`.red);
       }
     });
   }
