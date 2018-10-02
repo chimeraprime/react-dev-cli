@@ -10,9 +10,11 @@ const fs = require('fs-extra');
 const Component = require('./Component');
 const templates = require('../templates/component');
 
+const { capitalize } = require('../utils');
+
 describe('Component', () => {
-  const componentName = 'List';
-  const subComponentName = 'ListItem';
+  const componentName = 'list';
+  const subComponentName = 'listItem';
 
   afterEach(mock.restore);
   it('should be a class', () => {
@@ -22,7 +24,7 @@ describe('Component', () => {
   describe('should have set proper properties', () => {
     describe('witout config', () => {
       describe('componentsPath', () => {
-        it('if components directory exists', () => {
+        it('when components directory exists', () => {
           mock({
             'components': {},
           });
@@ -31,7 +33,7 @@ describe('Component', () => {
           expect(component.componentsPath).to.equal('components');
         });
 
-        it('if components directory doesn\'t exist', () => {
+        it('when components directory doesn\'t exist', () => {
           const component = new Component();
 
           expect(component.componentsPath).to.equal('.');
@@ -39,13 +41,13 @@ describe('Component', () => {
       });
 
       describe('componentName', () => {
-        it('if component is on the first level', () => {
+        it('when component is on the first level', () => {
           const component = new Component(componentName);
 
           expect(component.componentName).to.equal(componentName);
         });
 
-        it('if component is on the deeper level', () => {
+        it('when component is on the deeper level', () => {
           const name = 'Header';
           const component = new Component(`${componentName}/${subComponentName}/${name}`);
 
@@ -54,7 +56,7 @@ describe('Component', () => {
       });
 
       describe('folderPath', () => {
-        it('if components directory exists', () => {
+        it('when components directory exists', () => {
           const name = 'Header';
           const expectedPath = `${componentName}/${subComponentName}/${name}`;
           const component = new Component(expectedPath);
@@ -62,7 +64,7 @@ describe('Component', () => {
           expect(component.folderPath).to.equal(expectedPath);
         });
 
-        it('if components directory doesn\'t exist', () => {
+        it('when components directory doesn\'t exist', () => {
           mock({
             'components': {},
           });
@@ -266,13 +268,12 @@ describe('Component', () => {
     });
   });
 
-  describe('[manageComponentsIndexFile]', () => {
+  describe.only('[manageComponentsIndexFile]', () => {
     const indexAbsolutePath = `${process.cwd()}/components/index.js`;
     let component;
     let updateComponentsIndexFileStub;
     let createComponentsIndexFileStub;
     let existsSyncStub;
-
 
     beforeEach(() => {
       mock({
@@ -304,6 +305,37 @@ describe('Component', () => {
 
       expect(createComponentsIndexFileStub).to.have.been.calledWithMatch(indexAbsolutePath);
       expect(updateComponentsIndexFileStub).to.have.not.been.called;
+    });
+
+    describe('should generate proper content for index file', () => {
+      it('when component is on the first level', () => {
+        existsSyncStub.callsFake(() => true);
+        const expectedContent = templates.indexes.named
+          .replace(/:className/gi, capitalize(componentName))
+          .replace(/:basePath/gi, `./${capitalize(componentName)}`);
+
+        component.manageComponentsIndexFile();
+
+        expect(updateComponentsIndexFileStub).to.have.been
+          .calledWith(indexAbsolutePath, expectedContent);
+      });
+
+      it('when component is on the deeper level', () => {
+        existsSyncStub.callsFake(() => true);
+        const name = 'header';
+        const directories = [componentName, subComponentName, name];
+        component = new Component(directories.join('/'));
+        updateComponentsIndexFileStub = sinon.stub(component, 'updateComponentsIndexFile');
+        createComponentsIndexFileStub = sinon.stub(component, 'createComponentsIndexFile');
+
+        const expectedContent = templates.indexes.named
+          .replace(/:className/gi, capitalize(name))
+          .replace(/:basePath/gi, `./${directories.map(item => capitalize(item)).join('/')}`);
+        component.manageComponentsIndexFile();
+
+        expect(updateComponentsIndexFileStub).to.have.been
+          .calledWith(indexAbsolutePath, expectedContent);
+      });
     });
   });
 
