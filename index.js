@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 require('colors');
 const program = require('commander');
 const pjson = require('./package.json');

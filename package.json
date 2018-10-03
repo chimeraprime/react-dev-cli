@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Command tool to improve React development",
   "main": "index.js",
+  "bin": {
+    "rdc": "./index.js"
+  },
   "scripts": {
     "test": "mocha $(find . -name '*.spec.js' ! -ipath '*node_modules*')",
     "test:watch": "yarn test -- -w",
