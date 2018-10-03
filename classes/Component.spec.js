@@ -11,6 +11,8 @@ const Component = require('./Component');
 const templates = require('../templates/component');
 
 const { capitalize } = require('../utils');
+const { defaults } = require('../config');
+const getConfigStub = sinon.stub(Component, 'getConfig').callsFake(() => defaults);
 
 describe('Component', () => {
   const componentName = 'list';
@@ -199,14 +201,14 @@ describe('Component', () => {
       expect(outputFileStub).to.have.been.calledWith(expectedPath);
     });
 
-    it('should write file if doesn\'t exist', () => {
+    it('should write file when doesn\'t exist', () => {
       existsSyncStub.callsFake(() => false);
       component.writeComponentFile();
 
       expect(outputFileStub).to.have.been.called;
     });
 
-    it('should not write file if already exists', () => {
+    it('should not write file when already exists', () => {
       existsSyncStub.callsFake(() => true);
       component.writeComponentFile();
 
@@ -215,7 +217,7 @@ describe('Component', () => {
   });
 
   describe('[writeStylesFile]', () => {
-    const componentStylesPath = `${process.cwd()}/${capitalize(componentName)}/${capitalize(componentName)}.scss`;
+    const componentStylesPath = `${process.cwd()}/${capitalize(componentName)}/${capitalize(componentName)}.css`;
     let outputFileSyncStub;
     let component;
 
@@ -225,13 +227,26 @@ describe('Component', () => {
     });
     afterEach(() => outputFileSyncStub.restore());
 
-    it('should create empty scss file if doesn\'t exist', () => {
-      component.writeStylesFile();
+    describe('should create empty styles file when doesn\'t exist', () => {
+      it('with .css extension when not specified in project config', () => {
+        component.writeStylesFile();
 
-      expect(fs.outputFileSync).to.have.been.calledWith(componentStylesPath, '');
+        expect(fs.outputFileSync).to.have.been.calledWith(componentStylesPath, '');
+      });
+
+      it('with extension specified in project config', () => {
+        const extension = 'sass';
+        getConfigStub.callsFake(() => ({ stylesType: extension }));
+        const expectedComponentStylesPath = `${process.cwd()}/${capitalize(componentName)}/${capitalize(componentName)}.${extension}`;
+
+        component.writeStylesFile();
+
+        expect(fs.outputFileSync).to.have.been.calledWith(expectedComponentStylesPath, '');
+        getConfigStub.callsFake(() => defaults);
+      });
     });
 
-    it('should not create scss file if already exists', () => {
+    it('should not create styles file when already exists', () => {
       mock({
         [componentStylesPath]: mock.file({ content: 'sample file content' }),
       });
@@ -253,13 +268,13 @@ describe('Component', () => {
     });
     afterEach(() => outputFileStub.restore());
 
-    it('should create index file for a component, if doesn\'t exist', () => {
+    it('should create index file for a component, when doesn\'t exist', () => {
       component.writeComponentIndexFile();
 
       expect(outputFileStub).to.have.been.calledWith(indexPath, templates.indexes.default);
     });
 
-    it('should not create index file for component if already exists', () => {
+    it('should not create index file for component when already exists', () => {
       mock({
         [indexPath]: mock.file({ content: 'sample file content' }),
       });
@@ -291,7 +306,7 @@ describe('Component', () => {
       existsSyncStub.restore();
     });
 
-    it('should update components index file if already exists', () => {
+    it('should update components index file when already exists', () => {
       existsSyncStub.callsFake(() => true);
 
       component.manageComponentsIndexFile();
@@ -300,7 +315,7 @@ describe('Component', () => {
       expect(createComponentsIndexFileStub).to.have.not.been.called;
     });
 
-    it('should create components index file if doesn\'t exist', () => {
+    it('should create components index file when doesn\'t exist', () => {
       existsSyncStub.callsFake(() => false);
 
       component.manageComponentsIndexFile();
@@ -359,7 +374,7 @@ describe('Component', () => {
       readFileStub.restore();
     });
 
-    it('should update file if content is not duplicated', () => {
+    it('should update file when content is not duplicated', () => {
       const content = `export { default as ${componentName} } from './${componentName}'`;
       const expectedContent = `${indexBaseContent}\n${content}\n`;
 
@@ -367,7 +382,7 @@ describe('Component', () => {
       expect(outputFileStub).to.have.been.calledWithMatch(path, expectedContent);
     });
 
-    it('should not update file if content is duplicated', () => {
+    it('should not update file when content is duplicated', () => {
       component.updateComponentsIndexFile(path, indexBaseContent);
       expect(outputFileStub).to.have.not.been.called;
     });

@@ -4,14 +4,13 @@ const replace = require('replace');
 
 const templates = require('../templates/component');
 
-const { getConfig } = require('../config');
+// const { getConfig } = require('../config');
 const { capitalize } = require('../utils');
 
-const projectConfig = getConfig();
 class Component {
   constructor(component = '', options) {
-    const componentsPath = path.normalize(`${projectConfig.root}/components`);
-    const rootPath = path.normalize(projectConfig.root);
+    const componentsPath = path.normalize(`${Component.getConfig().root}/components`);
+    const rootPath = path.normalize(Component.getConfig().root);
     const componentDirs = component.split('/');
 
     this.options = options || {};
@@ -21,6 +20,10 @@ class Component {
     this.componentsPath = fs.existsSync(componentsPath) ? componentsPath : rootPath;
     this.folderPath = path.normalize(`${this.componentsPath}/${this.componentPath}`);
     this.filePath = path.normalize(`${this.folderPath}/${this.componentName}`);
+  }
+
+  static getConfig() {
+    return require('../config').getConfig();
   }
 
   generateComponent() {
@@ -79,14 +82,14 @@ class Component {
   }
 
   writeStylesFile() {
-    const stylesAbsolutePath = `${process.cwd()}/${this.filePath}.scss`;
+    const stylesAbsolutePath = `${process.cwd()}/${this.filePath}.${Component.getConfig().stylesType}`;
 
     if (!fs.existsSync(stylesAbsolutePath)) {
       console.log('creating syles...');
       fs.outputFileSync(stylesAbsolutePath, '');
-      console.log(`Stylesheet ${this.componentName} created at ${this.filePath}.scss`.cyan);
+      console.log(`Stylesheet ${this.componentName} created at ${this.filePath}.${Component.getConfig().stylesType}`.cyan);
     } else {
-      console.log(`Stylesheet ${this.componentName} allready exists at ${this.filePath}.scss, choose another name if you want to create a new stylesheet`.red);
+      console.log(`Stylesheet ${this.componentName} allready exists at ${this.filePath}.${Component.getConfig().stylesType}, choose another name if you want to create a new stylesheet`.red);
     }
   }
 
