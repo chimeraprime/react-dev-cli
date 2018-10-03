@@ -44,7 +44,7 @@ describe('Component', () => {
         it('when component is on the first level', () => {
           const component = new Component(componentName);
 
-          expect(component.componentName).to.equal(componentName);
+          expect(component.componentName).to.equal(capitalize(componentName));
         });
 
         it('when component is on the deeper level', () => {
@@ -58,8 +58,9 @@ describe('Component', () => {
       describe('folderPath', () => {
         it('when components directory exists', () => {
           const name = 'Header';
-          const expectedPath = `${componentName}/${subComponentName}/${name}`;
-          const component = new Component(expectedPath);
+          const directories = [componentName, subComponentName, name];
+          const component = new Component(directories.join('/'));
+          const expectedPath = directories.map(item => capitalize(item)).join('/');
 
           expect(component.folderPath).to.equal(expectedPath);
         });
@@ -69,7 +70,8 @@ describe('Component', () => {
             'components': {},
           });
           const name = 'ListItem';
-          const componentPath = `${componentName}/List/${name}`;
+          const directories = [componentName, subComponentName, name];
+          const componentPath = directories.map(item => capitalize(item)).join('/');
           const expectedPath = `components/${componentPath}`;
           const component = new Component(componentPath);
 
@@ -176,7 +178,7 @@ describe('Component', () => {
   });
 
   describe('[writeComponentFile]', () => {
-    const expectedPath = `${process.cwd()}/${componentName}/${componentName}.js`;
+    const expectedPath = `${process.cwd()}/${capitalize(componentName)}/${capitalize(componentName)}.js`;
     let outputFileStub;
     let existsSyncStub;
     let component;
@@ -213,7 +215,7 @@ describe('Component', () => {
   });
 
   describe('[writeStylesFile]', () => {
-    const componentStylesPath = `${process.cwd()}/${componentName}/${componentName}.scss`;
+    const componentStylesPath = `${process.cwd()}/${capitalize(componentName)}/${capitalize(componentName)}.scss`;
     let outputFileSyncStub;
     let component;
 
@@ -241,7 +243,7 @@ describe('Component', () => {
   });
 
   describe('[writeComponentIndexFile]', () => {
-    const indexPath = `${process.cwd()}/${componentName}/index.js`;
+    const indexPath = `${process.cwd()}/${capitalize(componentName)}/index.js`;
     let outputFileStub;
     let component;
 
@@ -268,7 +270,7 @@ describe('Component', () => {
     });
   });
 
-  describe.only('[manageComponentsIndexFile]', () => {
+  describe('[manageComponentsIndexFile]', () => {
     const indexAbsolutePath = `${process.cwd()}/components/index.js`;
     let component;
     let updateComponentsIndexFileStub;

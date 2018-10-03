@@ -16,7 +16,7 @@ class Component {
 
     this.options = options || {};
 
-    this.componentName = componentDirs[componentDirs.length - 1];
+    this.componentName = capitalize(componentDirs[componentDirs.length - 1]);
     this.componentPath = component.split('/').map(item => capitalize(item)).join('/');
     this.componentsPath = fs.existsSync(componentsPath) ? componentsPath : rootPath;
     this.folderPath = path.normalize(`${this.componentsPath}/${this.componentPath}`);
