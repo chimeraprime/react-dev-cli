@@ -35,23 +35,13 @@ Commands:
 ```
 
 ### Generate component
->```rdc component --help```
-```
-Usage: component [options] <component>
-
-Options:
-
-  -s, --style        With stylesheet
-  -f, --functional   Create functional component
-  -c, --withConnect  Wrap with redux connect
-  -h, --help         output usage information
-```
+Use ```rdc component --help``` to print help menu.
 
 >```rdc component HelloWorld```
 
 This will generate a folder with the basic structure of your component in a relative path to the value of `root` in your `.rdc` file.
 
-If you have already `components` folder in the source directory of your project, the new generated component will be created there. In another case, a component folder will be created in the root directory of your application.
+If you already have `components` folder in the source directory of your project, the new generated component will be created there. In another case, a component folder will be created in the root directory of your application.
 
 | Command      | Description                           |
 |-------------|---------------------------------------|
