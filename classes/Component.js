@@ -4,7 +4,6 @@ const replace = require('replace');
 
 const templates = require('../templates/component');
 
-// const { getConfig } = require('../config');
 const { capitalize } = require('../utils');
 
 class Component {
