@@ -1,19 +1,24 @@
 const fs = require('fs-extra');
+const path = require('path');
 const replace = require('replace');
 
 const templates = require('../templates/component');
 
+const { getConfig } = require('../config');
 const { capitalize } = require('../utils');
 
+const projectConfig = getConfig();
 class Component {
   constructor(component, options) {
+    const workingDir = process.cwd();
+    const componentsDir = path.normalize(`${workingDir}/${projectConfig.root}/components`);
+    const rootDir = path.normalize(`${workingDir}/${projectConfig.root}`);
+
     this.component = capitalize(component);
     this.options = options;
-    this.basePath = fs.existsSync('./components')
-      ? './components'
-      : '';
-    this.directoryPath = `${this.basePath}/${this.component}`;
-    this.componentPath = `${this.directoryPath}/${this.component}`;
+    this.basePath = fs.existsSync(componentsDir) ? componentsDir : rootDir;
+    this.directoryPath = path.normalize(`${this.basePath}/${this.component}`);
+    this.componentPath = path.normalize(`${this.directoryPath}/${this.component}`);
   }
 
   generateComponent() {
@@ -79,7 +84,7 @@ class Component {
   }
 
   writeComponentIndexFile() {
-    const indexPath = this.directoryPath + '/index.js';
+    const indexPath = path.normalize(this.directoryPath + '/index.js');
 
     if (!fs.existsSync(indexPath)) {
       fs.outputFile(indexPath, templates.indexes.default, err => {
@@ -99,7 +104,7 @@ class Component {
   }
 
   manageComponentsIndexFile() {
-    const indexPath = this.basePath + '/index.js';
+    const indexPath = path.normalize(this.basePath + '/index.js');
     const content = templates.indexes.named
       .replace(/:className/gi, capitalize(this.component))
       .replace(/:basePath/gi, capitalize(this.basePath));
