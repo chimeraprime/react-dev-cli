@@ -138,12 +138,9 @@ class Component {
       if (err) throw err;
 
       const indexContentLines = indexContent.split('\n').filter((item, index, arr) => {
-        const isLastItem = index === arr.length - 1;
-        if (isLastItem && !item) {
-          return false;
-        }
+        const isLastIndex = index === arr.length - 1;
 
-        return true;
+        return isLastIndex && !!item;
       });
 
       if (!indexContentLines.includes(content)) {
