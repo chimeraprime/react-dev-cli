@@ -19,24 +19,9 @@ To define config create a `.rdc` file in the root directory of your application.
 :exclamation::exclamation::exclamation:
 You should run a CLI tool being always in the root directory of your application.
 
->```rdc --help```
-```
-Usage: index [options] [command]
-
-Options:
-
-  -v, --version                    output the version number
-  -h, --help                       output usage information
-
-Commands:
-
-  component [options] <component>
-  config
-```
+Use ```rdc --help``` to print help menu.
 
 ### Generate component
-Use ```rdc component --help``` to print help menu.
-
 >```rdc component HelloWorld```
 
 This will generate a folder with the basic structure of your component in a relative path to the value of `root` in your `.rdc` file.
