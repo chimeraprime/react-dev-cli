@@ -36,7 +36,7 @@ const exported = {
 
 const indexes = {
   default: "export { default } from './:className'",
-  named: "export { default as :className } from ':basePath/:className'",
+  named: "export { default as :className } from ':basePath'",
 };
 
 module.exports = {
