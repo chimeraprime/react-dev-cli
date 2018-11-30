@@ -1,0 +1,28 @@
+version: 2
+jobs:
+  tests:
+    docker:
+      - image: buildpack-deps:trusty
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-
+
+      - run: yarn install --frozen-lockfile
+      - run: yarn lint
+      - run: yarn test
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+workflows:
+  version: 2
+  build-develop:
+    jobs:
+      - tests:
+          filters:
+            branches:
+              only: develop
