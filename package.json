@@ -9,7 +9,8 @@
   "scripts": {
     "test": "mocha $(find . -name '*.spec.js' ! -ipath '*node_modules*')",
     "test:watch": "yarn test -- -w",
-    "lint:fix": "eslint ./ --fix"
+    "lint": "eslint ./",
+    "lint:fix": "yarn lint --fix"
   },
   "husky": {
     "hooks": {
