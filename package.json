@@ -13,8 +13,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "bin/pre-commit.sh",
-      "post-push": "yarn test"
+      "pre-commit": "bin/pre-commit.sh"
     }
   },
   "keywords": [
