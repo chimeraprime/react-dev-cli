@@ -1,8 +1,9 @@
 version: 2
+
 jobs:
   tests:
     docker:
-      - image: buildpack-deps:trusty
+      - image: circleci/node:8.11
     steps:
       - checkout
       - restore_cache:
