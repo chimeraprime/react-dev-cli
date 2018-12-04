@@ -44,14 +44,14 @@ describe('Component', () => {
 
       describe('componentName', () => {
         it('when component is on the first level', () => {
-          const component = new Component(componentName);
+          const component = new Component({ component: componentName });
 
           expect(component.componentName).to.equal(capitalize(componentName));
         });
 
         it('when component is on the deeper level', () => {
           const name = 'Header';
-          const component = new Component(`${componentName}/${subComponentName}/${name}`);
+          const component = new Component({ component: `${componentName}/${subComponentName}/${name}` });
 
           expect(component.componentName).to.equal(name);
         });
@@ -61,7 +61,7 @@ describe('Component', () => {
         it('when components directory exists', () => {
           const name = 'Header';
           const directories = [componentName, subComponentName, name];
-          const component = new Component(directories.join('/'));
+          const component = new Component({ component: directories.join('/') });
           const expectedPath = directories.map(item => capitalize(item)).join('/');
 
           expect(component.folderPath).to.equal(expectedPath);
@@ -75,7 +75,7 @@ describe('Component', () => {
           const directories = [componentName, subComponentName, name];
           const componentPath = directories.map(item => capitalize(item)).join('/');
           const expectedPath = `components/${componentPath}`;
-          const component = new Component(componentPath);
+          const component = new Component({ component: componentPath });
 
           expect(component.folderPath).to.equal(expectedPath);
         });
@@ -86,7 +86,7 @@ describe('Component', () => {
   describe('[buildTemplate]', () => {
     describe('should generate proper template based on options', () => {
       it('no options', () => {
-        const component = new Component('ComponentName');
+        const component = new Component({ component: 'ComponentName' });
         const template = component.buildTemplate();
 
         const expectedImports = [templates.imports.react];
@@ -98,7 +98,7 @@ describe('Component', () => {
       });
 
       it('withConnect', () => {
-        const component = new Component('ComponentName', { withConnect: true });
+        const component = new Component({ component: 'ComponentName', options: { withConnect: true } });
         const template = component.buildTemplate();
 
         const expectedImports = [templates.imports.react, templates.imports.connect];
@@ -110,7 +110,7 @@ describe('Component', () => {
       });
 
       it('style', () => {
-        const component = new Component('ComponentName', { style: true });
+        const component = new Component({ component: 'ComponentName', options: { style: true } });
         const template = component.buildTemplate();
 
         const expectedImports = [templates.imports.react, '\n' + templates.imports.stylesheet];
@@ -122,7 +122,7 @@ describe('Component', () => {
       });
 
       it('withConnect and style', () => {
-        const component = new Component(componentName, { withConnect: true, style: true });
+        const component = new Component({ component: componentName, options: { withConnect: true, style: true } });
         const template = component.buildTemplate();
 
         const expectedImports = [
@@ -146,7 +146,7 @@ describe('Component', () => {
     let manageComponentsIndexFileStub;
 
     beforeEach(() => {
-      component = new Component(componentName);
+      component = new Component({ component: componentName });
       writeComponentFileStub = sinon.stub(component, 'writeComponentFile');
       writeComponentIndexFileStub = sinon.stub(component, 'writeComponentIndexFile');
       manageComponentsIndexFileStub = sinon.stub(component, 'manageComponentsIndexFile');
@@ -188,7 +188,7 @@ describe('Component', () => {
     beforeEach(() => {
       outputFileStub = sinon.stub(fs, 'outputFile');
       existsSyncStub = sinon.stub(fs, 'existsSync');
-      component = new Component(componentName);
+      component = new Component({ component: componentName });
     });
     afterEach(() => {
       outputFileStub.restore();
@@ -223,7 +223,7 @@ describe('Component', () => {
 
     beforeEach(() => {
       outputFileSyncStub = sinon.stub(fs, 'outputFileSync');
-      component = new Component(componentName, { style: true });
+      component = new Component({ component: componentName, options: { style: true } });
     });
     afterEach(() => outputFileSyncStub.restore());
 
@@ -264,7 +264,7 @@ describe('Component', () => {
 
     beforeEach(() => {
       outputFileStub = sinon.stub(fs, 'outputFile');
-      component = new Component(componentName);
+      component = new Component({ component: componentName });
     });
     afterEach(() => outputFileStub.restore());
 
@@ -296,7 +296,7 @@ describe('Component', () => {
       mock({
         components: {},
       });
-      component = new Component(componentName);
+      component = new Component({ component: componentName });
       updateComponentsIndexFileStub = sinon.stub(component, 'updateComponentsIndexFile');
       createComponentsIndexFileStub = sinon.stub(component, 'createComponentsIndexFile');
       existsSyncStub = sinon.stub(fs, 'existsSync');
@@ -341,7 +341,7 @@ describe('Component', () => {
         existsSyncStub.callsFake(() => true);
         const name = 'header';
         const directories = [componentName, subComponentName, name];
-        component = new Component(directories.join('/'));
+        component = new Component({ component: directories.join('/') });
         updateComponentsIndexFileStub = sinon.stub(component, 'updateComponentsIndexFile');
         createComponentsIndexFileStub = sinon.stub(component, 'createComponentsIndexFile');
 
@@ -364,7 +364,7 @@ describe('Component', () => {
     let component;
 
     beforeEach(() => {
-      component = new Component(componentName);
+      component = new Component({ component: componentName });
       outputFileStub = sinon.stub(fs, 'outputFile');
       readFileStub = sinon.stub(fs, 'readFile')
         .callsFake((path, format, cb) => cb('', indexBaseContent + '\n'));

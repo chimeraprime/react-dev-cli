@@ -7,8 +7,9 @@ const templates = require('../templates/component');
 const { capitalize } = require('../utils');
 
 class Component {
-  constructor(component = '', options) {
-    const componentsPath = path.normalize(`${Component.getConfig().root}/components`);
+  constructor(args) {
+    const { component = '', subfolder = 'components', options } = args || {};
+    const componentsPath = path.normalize(`${Component.getConfig().root}/${subfolder}`);
     const rootPath = path.normalize(Component.getConfig().root);
     const componentDirs = component.split('/');
 

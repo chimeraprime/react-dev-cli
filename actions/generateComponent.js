@@ -8,7 +8,7 @@ function generateComponent(component, cmd) {
     return acc;
   }, {});
 
-  const componentInstance = new Component(component, options);
+  const componentInstance = new Component({ component, options });
   componentInstance.generateComponent();
 }
 
