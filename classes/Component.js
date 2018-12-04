@@ -3,6 +3,7 @@ const path = require('path');
 const replace = require('replace');
 
 const templates = require('../templates/component');
+const { getTemplate } = require('./StrategyService');
 
 const { capitalize } = require('../utils');
 
@@ -43,26 +44,12 @@ class Component {
   }
 
   generateComponent() {
-    const template = this.buildTemplate();
+    const template = getTemplate({
+      strategy: Component.getConfig().framework,
+      options: this.options,
+    });
 
     this.writeComponentStructure(template);
-  }
-
-  buildTemplate() {
-    const imports = [templates.imports.react];
-
-    if (this.options.withConnect) {
-      imports.push(templates.imports.connect);
-    }
-
-    if (this.options.style) {
-      imports.push('\n' + templates.imports.stylesheet);
-    }
-
-    const body = this.options.functional ? [templates.functional] : [templates.classComponents.default].join('\n');
-    const exported = this.options.withConnect ? [templates.exported.withConnect] : [templates.exported.default];
-
-    return imports.join('\n') + '\n' + body + '\n' + exported;
   }
 
   writeComponentStructure(template) {

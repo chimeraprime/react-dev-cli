@@ -11,8 +11,9 @@ const Component = require('./Component');
 const templates = require('../templates/component');
 
 const { capitalize } = require('../utils');
-const { defaults } = require('../config');
-const getConfigStub = sinon.stub(Component, 'getConfig').callsFake(() => defaults);
+const { defaultConfig } = require('../config');
+const getDefaultConfig = () => new Proxy({}, defaultConfig);
+const getConfigStub = sinon.stub(Component, 'getConfig').callsFake(getDefaultConfig);
 
 describe('Component', () => {
   const componentName = 'list';
@@ -79,62 +80,6 @@ describe('Component', () => {
 
           expect(component.folderPath).to.equal(expectedPath);
         });
-      });
-    });
-  });
-
-  describe('[buildTemplate]', () => {
-    describe('should generate proper template based on options', () => {
-      it('no options', () => {
-        const component = new Component({ component: 'ComponentName' });
-        const template = component.buildTemplate();
-
-        const expectedImports = [templates.imports.react];
-        const expectedBody = [templates.classComponents.default].join('\n');
-        const expectedExport = [templates.exported.default];
-        const expectedTemplate = expectedImports.join('\n') + '\n' + expectedBody + '\n' + expectedExport;
-
-        expect(template).to.equal(expectedTemplate);
-      });
-
-      it('withConnect', () => {
-        const component = new Component({ component: 'ComponentName', options: { withConnect: true } });
-        const template = component.buildTemplate();
-
-        const expectedImports = [templates.imports.react, templates.imports.connect];
-        const expectedBody = [templates.classComponents.default].join('\n');
-        const expectedExport = [templates.exported.withConnect];
-        const expectedTemplate = expectedImports.join('\n') + '\n' + expectedBody + '\n' + expectedExport;
-
-        expect(template).to.equal(expectedTemplate);
-      });
-
-      it('style', () => {
-        const component = new Component({ component: 'ComponentName', options: { style: true } });
-        const template = component.buildTemplate();
-
-        const expectedImports = [templates.imports.react, '\n' + templates.imports.stylesheet];
-        const expectedBody = [templates.classComponents.default].join('\n');
-        const expectedExport = [templates.exported.default];
-        const expectedTemplate = expectedImports.join('\n') + '\n' + expectedBody + '\n' + expectedExport;
-
-        expect(template).to.equal(expectedTemplate);
-      });
-
-      it('withConnect and style', () => {
-        const component = new Component({ component: componentName, options: { withConnect: true, style: true } });
-        const template = component.buildTemplate();
-
-        const expectedImports = [
-          templates.imports.react,
-          templates.imports.connect,
-          '\n' + templates.imports.stylesheet,
-        ];
-        const expectedBody = [templates.classComponents.default].join('\n');
-        const expectedExport = [templates.exported.withConnect];
-        const expectedTemplate = expectedImports.join('\n') + '\n' + expectedBody + '\n' + expectedExport;
-
-        expect(template).to.equal(expectedTemplate);
       });
     });
   });
@@ -242,7 +187,7 @@ describe('Component', () => {
         component.writeStylesFile();
 
         expect(fs.outputFileSync).to.have.been.calledWith(expectedComponentStylesPath, '');
-        getConfigStub.callsFake(() => defaults);
+        getConfigStub.callsFake(getDefaultConfig);
       });
     });
 

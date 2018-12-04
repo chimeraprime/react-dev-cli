@@ -15,6 +15,7 @@ class :className extends React.PureComponent {
 }
 `,
   nextjs: `
+
 class :className extends React.PureComponent {
   state = {
 
