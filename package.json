@@ -9,7 +9,13 @@
   "scripts": {
     "test": "mocha $(find . -name '*.spec.js' ! -ipath '*node_modules*')",
     "test:watch": "yarn test -- -w",
-    "lint:fix": "eslint ./ --fix"
+    "lint": "eslint ./",
+    "lint:fix": "yarn lint --fix"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "bin/pre-commit.sh"
+    }
   },
   "keywords": [
     "react",
@@ -18,18 +24,19 @@
   "author": "Daniel Siwek",
   "license": "MIT",
   "dependencies": {
-    "chai": "4.1.2",
     "colors": "1.3.2",
     "commander": "2.18.0",
     "fs-extra": "7.0.0",
-    "mocha": "5.2.0",
-    "mock-fs": "4.7.0",
-    "replace": "1.0.0",
-    "sinon": "6.3.4",
-    "sinon-chai": "3.2.0"
+    "replace": "1.0.0"
   },
   "devDependencies": {
     "@chimeraprime/eslint-config-chimera-prime": "1.0.4",
-    "eslint": "5.6.0"
+    "chai": "4.1.2",
+    "eslint": "5.6.0",
+    "husky": "^1.2.0",
+    "mocha": "5.2.0",
+    "mock-fs": "4.7.0",
+    "sinon": "6.3.4",
+    "sinon-chai": "3.2.0"
   }
 }
