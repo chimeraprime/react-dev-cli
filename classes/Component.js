@@ -6,14 +6,30 @@ const templates = require('../templates/component');
 
 const { capitalize } = require('../utils');
 
+const defaultOptions = {
+  get: (target, name) => {
+    const getValue = defaultVal => target.hasOwnProperty(name) ? target[name] : defaultVal;
+
+    switch (name) {
+      case 'subfolder':
+        return getValue('components');
+
+      default:
+        return getValue(undefined);
+    }
+  },
+};
+
 class Component {
-  constructor(args) {
-    const { component = '', subfolder = 'components', options } = args || {};
-    const componentsPath = path.normalize(`${Component.getConfig().root}/${subfolder}`);
+  constructor(args = {}) {
+    const { component = '' } = args;
+    const options = new Proxy(args.options || {}, defaultOptions);
+
+    const componentsPath = path.normalize(`${Component.getConfig().root}/${options.subfolder}`);
     const rootPath = path.normalize(Component.getConfig().root);
     const componentDirs = component.split('/');
 
-    this.options = options || {};
+    this.options = options;
 
     this.componentName = capitalize(componentDirs[componentDirs.length - 1]);
     this.componentPath = component.split('/').map(item => capitalize(item)).join('/');
@@ -43,7 +59,7 @@ class Component {
       imports.push('\n' + templates.imports.stylesheet);
     }
 
-    const body = this.options.functional ? [templates.functional] : [templates.main].join('\n');
+    const body = this.options.functional ? [templates.functional] : [templates.classComponents.default].join('\n');
     const exported = this.options.withConnect ? [templates.exported.withConnect] : [templates.exported.default];
 
     return imports.join('\n') + '\n' + body + '\n' + exported;
@@ -106,7 +122,7 @@ class Component {
           recursive: false,
           silent: true,
         });
-        console.log(`Index file for ${this.componentName} created at ${path}`.cyan);
+        console.log(`Index file for ${this.componentName} created at ${absoluteIndexPath}`.cyan);
       });
     } else {
       console.log(`Index file for ${this.componentName} has been already added`.red);

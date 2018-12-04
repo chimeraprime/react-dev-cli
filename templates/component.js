@@ -1,4 +1,5 @@
-const main = `
+const classComponents = {
+  default: `
 class :className extends React.PureComponent {
   state = {
 
@@ -7,12 +8,32 @@ class :className extends React.PureComponent {
   render() {
     return (
       <div className=":className">
-
+        
       </div>
     )
   }
 }
-`;
+`,
+  nextjs: `
+class :className extends React.PureComponent {
+  state = {
+
+  }
+
+  render() {
+    return (
+      <>
+        
+
+        <style jsx>{\`
+
+        \`}</style>
+      </>
+    )
+  }
+}
+`,
+};
 
 const functional = `
 const :className = () => {
@@ -40,7 +61,7 @@ const indexes = {
 };
 
 module.exports = {
-  main,
+  classComponents,
   imports,
   exported,
   functional,

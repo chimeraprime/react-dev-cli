@@ -90,7 +90,7 @@ describe('Component', () => {
         const template = component.buildTemplate();
 
         const expectedImports = [templates.imports.react];
-        const expectedBody = [templates.main].join('\n');
+        const expectedBody = [templates.classComponents.default].join('\n');
         const expectedExport = [templates.exported.default];
         const expectedTemplate = expectedImports.join('\n') + '\n' + expectedBody + '\n' + expectedExport;
 
@@ -102,7 +102,7 @@ describe('Component', () => {
         const template = component.buildTemplate();
 
         const expectedImports = [templates.imports.react, templates.imports.connect];
-        const expectedBody = [templates.main].join('\n');
+        const expectedBody = [templates.classComponents.default].join('\n');
         const expectedExport = [templates.exported.withConnect];
         const expectedTemplate = expectedImports.join('\n') + '\n' + expectedBody + '\n' + expectedExport;
 
@@ -114,7 +114,7 @@ describe('Component', () => {
         const template = component.buildTemplate();
 
         const expectedImports = [templates.imports.react, '\n' + templates.imports.stylesheet];
-        const expectedBody = [templates.main].join('\n');
+        const expectedBody = [templates.classComponents.default].join('\n');
         const expectedExport = [templates.exported.default];
         const expectedTemplate = expectedImports.join('\n') + '\n' + expectedBody + '\n' + expectedExport;
 
@@ -130,7 +130,7 @@ describe('Component', () => {
           templates.imports.connect,
           '\n' + templates.imports.stylesheet,
         ];
-        const expectedBody = [templates.main].join('\n');
+        const expectedBody = [templates.classComponents.default].join('\n');
         const expectedExport = [templates.exported.withConnect];
         const expectedTemplate = expectedImports.join('\n') + '\n' + expectedBody + '\n' + expectedExport;
 
