@@ -18,6 +18,14 @@ program
   .action(generateComponent);
 
 program
+  .command('page <page>')
+  .option('-f, --functional', 'Create functional component')
+  .action((page, cmd) => generateComponent(page, cmd, {
+    withGetInitialProps: true,
+    subfolder: 'pages',
+  }));
+
+program
   .command('config')
   .action(() => {
     const { getConfig } = require('./config');
