@@ -34,6 +34,7 @@ If you already have `components` folder in the source directory of your project,
 | `rdc component HelloWorld -s`       | Generates with styles (.scss) file and import in a component file |
 | `rdc component HelloWorld -f`  | Generates stateless component         |
 | `rdc component HelloWorld -c` | Exports connected with redux store component  |
+| `rdc component HelloWorld --subfolder pages` | Generates component in a /pages directory  |
 
 Differences in the structure of the components you create [can be seen here](templates/component.js).
 

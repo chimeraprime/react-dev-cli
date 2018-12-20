@@ -41,6 +41,21 @@ describe('Component', () => {
 
           expect(component.componentsPath).to.equal('.');
         });
+
+        it('when selected directory exists', () => {
+          mock({
+            'pages': {},
+          });
+          const component = new Component({ options: { subfolder: 'pages' } });
+
+          expect(component.componentsPath).to.equal('pages');
+        });
+
+        it('when selected directory doesn\'t exist', () => {
+          const component = new Component({ options: { subfolder: 'pages' } });
+
+          expect(component.componentsPath).to.equal('.');
+        });
       });
 
       describe('componentName', () => {
