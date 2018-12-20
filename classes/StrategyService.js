@@ -5,7 +5,10 @@ const getTemplate = (props = {}) => {
     default: [templates.imports.react],
     nextjs: [],
   };
-  const { strategy = 'default', options = {} } = props;
+  const { options = {} } = props;
+  const strategy = Object.keys(templateImports).includes(props.strategy)
+    ? props.strategy
+    : 'default';
   const imports = templateImports[strategy];
 
   if (options.withConnect) {
@@ -17,13 +20,13 @@ const getTemplate = (props = {}) => {
   }
 
   const body = options.functional
-    ? [templates.functional]
+    ? [templates.functionalComponents[strategy]]
     : [templates.classComponents[strategy]].join('\n');
   const exported = options.withConnect
     ? [templates.exported.withConnect]
     : [templates.exported.default];
 
-  return imports.join('\n') + '\n' + body + '\n' + exported;
+  return imports.join('\n') + '\n' + body + '\n' + exported + '\n';
 };
 
 module.exports = {

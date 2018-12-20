@@ -15,7 +15,6 @@ class :className extends React.PureComponent {
 }
 `,
   nextjs: `
-
 class :className extends React.PureComponent {
   state = {
 
@@ -36,14 +35,29 @@ class :className extends React.PureComponent {
 `,
 };
 
-const functional = `
+const functionalComponents = {
+  default: `
 const :className = () => {
   return (
     <div className=":className">
     </div>
   )
 }
-`;
+`,
+  nextjs: `
+const :className = () => {
+  return (
+    <>
+
+
+      <style jsx>{\`
+
+      \`}</style>
+    </>
+  )
+}
+`,
+};
 
 const imports = {
   react: "import React from 'react';",
@@ -63,8 +77,8 @@ const indexes = {
 
 module.exports = {
   classComponents,
+  functionalComponents,
   imports,
   exported,
-  functional,
   indexes,
 };
