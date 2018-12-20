@@ -11,9 +11,10 @@ or
 ### Config :wrench:
 To define config create a `.rdc` file in the root directory of your application.
 
-| Property | Sample value | Description                            |
-|----------|--------------|----------------------------------------|
-| root     | src          | Path to the source of your application |
+| Property | Sample value     | Description                            |
+|----------|------------------|----------------------------------------|
+| root     | src              | Path to the source of your application |
+| framework| nextjs           | Path to the source of your application |
 
 ## Usage :speedboat:
 :exclamation::exclamation::exclamation:
