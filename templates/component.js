@@ -1,14 +1,14 @@
+const hooks = require('./hooks');
+
 const classComponents = {
   default: `
 class :className extends React.PureComponent {
   state = {
-
   }
 
   render() {
     return (
       <div className=":className">
-        
       </div>
     )
   }
@@ -17,16 +17,13 @@ class :className extends React.PureComponent {
   nextjs: `
 class :className extends React.PureComponent {
   state = {
-
-  }
+  }${hooks.component.getInitialProps}
 
   render() {
     return (
       <>
-        
 
         <style jsx>{\`
-
         \`}</style>
       </>
     )
@@ -49,9 +46,7 @@ const :className = () => {
   return (
     <>
 
-
       <style jsx>{\`
-
       \`}</style>
     </>
   )

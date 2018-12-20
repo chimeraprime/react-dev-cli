@@ -13,6 +13,7 @@ program
   .option('-s, --style', 'With stylesheet')
   .option('-f, --functional', 'Create functional component')
   .option('-c, --withConnect', 'Wrap with redux connect')
+  .option('--withGetInitialProps', 'Attach getInitialProps static method')
   .option('--subfolder [subfolder]', 'Folder when you want to store your component', 'components')
   .action(generateComponent);
 

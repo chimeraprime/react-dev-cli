@@ -1,6 +1,8 @@
 const templates = require('../templates/component');
+const templateHooks = require('../templates/hooks');
+const templateAssets = require('../templates/assets');
 
-const getTemplate = (props = {}) => {
+function getTemplate(props = {}) {
   const templateImports = {
     default: [templates.imports.react],
     nextjs: [],
@@ -19,16 +21,34 @@ const getTemplate = (props = {}) => {
     imports.push('\n' + templates.imports.stylesheet);
   }
 
-  const body = options.functional
+  let body = options.functional
     ? [templates.functionalComponents[strategy]]
-    : [templates.classComponents[strategy]].join('\n');
+    : [templates.classComponents[strategy]];
+  body = manageTemplateHooks(body.join('\n'), options);
+
   const exported = options.withConnect
     ? [templates.exported.withConnect]
     : [templates.exported.default];
 
   return imports.join('\n') + '\n' + body + '\n' + exported + '\n';
-};
+}
+
+function manageTemplateHooks(body, options = {}) {
+  Object.values(templateHooks.component).forEach(hook => {
+    switch (hook) {
+      case 'getInitialProps':
+        body = body.replace(hook, options.withGetInitialProps ? templateAssets[hook] : '');
+        break;
+
+      default:
+        break;
+    }
+  });
+
+  return body;
+}
 
 module.exports = {
   getTemplate,
+  manageTemplateHooks,
 };
