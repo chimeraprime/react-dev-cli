@@ -3,34 +3,39 @@
 require('colors');
 const program = require('commander');
 const pjson = require('./package.json');
+const { getConfig } = require('./config');
+const config = getConfig();
 
 const generateComponent = require('./actions/generateComponent');
+const { cond } = require('./utils/index');
+const isNextJS = config.framework === 'nextjs';
 
-program
-  .version(pjson.version, '-v, --version')
+cond(program)
+  .chain(program => program
+    .version(pjson.version, '-v, --version')
+    .command('component <component>')
+    .option('-s, --style', 'With stylesheet')
+    .option('-f, --functional', 'Create functional component')
+    .option('-c, --withConnect', 'Wrap with redux connect')
+    .option('--subfolder [subfolder]', 'Folder when you want to store your component', 'components')
+  )
+  .if(isNextJS, program => program.option('--withGetInitialProps', 'Attach getInitialProps static method'))
+  .chain(program => program.action(generateComponent))
+  .end();
 
-  .command('component <component>')
-  .option('-s, --style', 'With stylesheet')
-  .option('-f, --functional', 'Create functional component')
-  .option('-c, --withConnect', 'Wrap with redux connect')
-  .option('--withGetInitialProps', 'Attach getInitialProps static method')
-  .option('--subfolder [subfolder]', 'Folder when you want to store your component', 'components')
-  .action(generateComponent);
-
-program
-  .command('page <page>')
-  .option('-f, --functional', 'Create functional component')
-  .action((page, cmd) => generateComponent(page, cmd, {
-    withGetInitialProps: true,
-    subfolder: 'pages',
-  }));
+if (isNextJS) {
+  program
+    .command('page <page>')
+    .option('-f, --functional', 'Create functional component')
+    .action((page, cmd) => generateComponent(page, cmd, {
+      withGetInitialProps: true,
+      subfolder: 'pages',
+    }));
+}
 
 program
   .command('config')
   .action(() => {
-    const { getConfig } = require('./config');
-
-    const config = getConfig();
     console.log(config);
   });
 
