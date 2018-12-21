@@ -1,8 +1,10 @@
 const chai = require('chai');
 const expect = chai.expect;
 
-const { getTemplate, manageTemplateHooks } = require('./StrategyService');
+const { getTemplate } = require('./StrategyService');
 const templates = require('../templates/component');
+const templateHooks = require('../templates/hooks');
+const templateAssets = require('../templates/assets');
 
 describe('StrategyService', () => {
   describe('should generate proper template based on options', () => {
@@ -62,9 +64,11 @@ describe('StrategyService', () => {
     it('nextjs class component', () => {
       const template = getTemplate({ strategy: 'nextjs' });
 
-      const expectedBody = [templates.classComponents.nextjs].join('\n');
+      const expectedBody = [templates.classComponents.nextjs]
+        .join('\n')
+        .replace(templateHooks.component.getInitialProps, '');
       const expectedExport = [templates.exported.default];
-      const expectedTemplate = '\n' + manageTemplateHooks(expectedBody) + '\n' + expectedExport + '\n';
+      const expectedTemplate = '\n' + expectedBody + '\n' + expectedExport + '\n';
 
       expect(template).to.equal(expectedTemplate);
     });
@@ -75,9 +79,11 @@ describe('StrategyService', () => {
       };
       const template = getTemplate({ strategy: 'nextjs', options });
 
-      const expectedBody = [templates.classComponents.nextjs].join('\n');
+      const expectedBody = [templates.classComponents.nextjs]
+        .join('\n')
+        .replace(templateHooks.component.getInitialProps, templateAssets[templateHooks.component.getInitialProps]);
       const expectedExport = [templates.exported.default];
-      const expectedTemplate = '\n' + manageTemplateHooks(expectedBody, options) + '\n' + expectedExport + '\n';
+      const expectedTemplate = '\n' + expectedBody + '\n' + expectedExport + '\n';
 
       expect(template).to.equal(expectedTemplate);
     });
