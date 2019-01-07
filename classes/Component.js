@@ -3,16 +3,34 @@ const path = require('path');
 const replace = require('replace');
 
 const templates = require('../templates/component');
+const { getTemplate } = require('./StrategyService');
 
 const { capitalize } = require('../utils');
 
+const defaultOptions = {
+  get: (target, name) => {
+    const getValue = defaultVal => target.hasOwnProperty(name) ? target[name] : defaultVal;
+
+    switch (name) {
+      case 'subfolder':
+        return getValue('components');
+
+      default:
+        return getValue(undefined);
+    }
+  },
+};
+
 class Component {
-  constructor(component = '', options) {
-    const componentsPath = path.normalize(`${Component.getConfig().root}/components`);
+  constructor(args = {}) {
+    const { component = '' } = args;
+    const options = new Proxy(args.options || {}, defaultOptions);
+
+    const componentsPath = path.normalize(`${Component.getConfig().root}/${options.subfolder}`);
     const rootPath = path.normalize(Component.getConfig().root);
     const componentDirs = component.split('/');
 
-    this.options = options || {};
+    this.options = options;
 
     this.componentName = capitalize(componentDirs[componentDirs.length - 1]);
     this.componentPath = component.split('/').map(item => capitalize(item)).join('/');
@@ -26,26 +44,12 @@ class Component {
   }
 
   generateComponent() {
-    const template = this.buildTemplate();
+    const template = getTemplate({
+      strategy: Component.getConfig().framework,
+      options: this.options,
+    });
 
     this.writeComponentStructure(template);
-  }
-
-  buildTemplate() {
-    const imports = [templates.imports.react];
-
-    if (this.options.withConnect) {
-      imports.push(templates.imports.connect);
-    }
-
-    if (this.options.style) {
-      imports.push('\n' + templates.imports.stylesheet);
-    }
-
-    const body = this.options.functional ? [templates.functional] : [templates.main].join('\n');
-    const exported = this.options.withConnect ? [templates.exported.withConnect] : [templates.exported.default];
-
-    return imports.join('\n') + '\n' + body + '\n' + exported;
   }
 
   writeComponentStructure(template) {
@@ -105,7 +109,7 @@ class Component {
           recursive: false,
           silent: true,
         });
-        console.log(`Index file for ${this.componentName} created at ${path}`.cyan);
+        console.log(`Index file for ${this.componentName} created at ${absoluteIndexPath}`.cyan);
       });
     } else {
       console.log(`Index file for ${this.componentName} has been already added`.red);

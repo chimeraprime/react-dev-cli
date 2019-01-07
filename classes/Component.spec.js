@@ -11,8 +11,9 @@ const Component = require('./Component');
 const templates = require('../templates/component');
 
 const { capitalize } = require('../utils');
-const { defaults } = require('../config');
-const getConfigStub = sinon.stub(Component, 'getConfig').callsFake(() => defaults);
+const { defaultConfig } = require('../config');
+const getDefaultConfig = () => new Proxy({}, defaultConfig);
+const getConfigStub = sinon.stub(Component, 'getConfig').callsFake(getDefaultConfig);
 
 describe('Component', () => {
   const componentName = 'list';
@@ -40,18 +41,33 @@ describe('Component', () => {
 
           expect(component.componentsPath).to.equal('.');
         });
+
+        it('when selected directory exists', () => {
+          mock({
+            'pages': {},
+          });
+          const component = new Component({ options: { subfolder: 'pages' } });
+
+          expect(component.componentsPath).to.equal('pages');
+        });
+
+        it('when selected directory doesn\'t exist', () => {
+          const component = new Component({ options: { subfolder: 'pages' } });
+
+          expect(component.componentsPath).to.equal('.');
+        });
       });
 
       describe('componentName', () => {
         it('when component is on the first level', () => {
-          const component = new Component(componentName);
+          const component = new Component({ component: componentName });
 
           expect(component.componentName).to.equal(capitalize(componentName));
         });
 
         it('when component is on the deeper level', () => {
           const name = 'Header';
-          const component = new Component(`${componentName}/${subComponentName}/${name}`);
+          const component = new Component({ component: `${componentName}/${subComponentName}/${name}` });
 
           expect(component.componentName).to.equal(name);
         });
@@ -61,7 +77,7 @@ describe('Component', () => {
         it('when components directory exists', () => {
           const name = 'Header';
           const directories = [componentName, subComponentName, name];
-          const component = new Component(directories.join('/'));
+          const component = new Component({ component: directories.join('/') });
           const expectedPath = directories.map(item => capitalize(item)).join('/');
 
           expect(component.folderPath).to.equal(expectedPath);
@@ -75,66 +91,10 @@ describe('Component', () => {
           const directories = [componentName, subComponentName, name];
           const componentPath = directories.map(item => capitalize(item)).join('/');
           const expectedPath = `components/${componentPath}`;
-          const component = new Component(componentPath);
+          const component = new Component({ component: componentPath });
 
           expect(component.folderPath).to.equal(expectedPath);
         });
-      });
-    });
-  });
-
-  describe('[buildTemplate]', () => {
-    describe('should generate proper template based on options', () => {
-      it('no options', () => {
-        const component = new Component('ComponentName');
-        const template = component.buildTemplate();
-
-        const expectedImports = [templates.imports.react];
-        const expectedBody = [templates.main].join('\n');
-        const expectedExport = [templates.exported.default];
-        const expectedTemplate = expectedImports.join('\n') + '\n' + expectedBody + '\n' + expectedExport;
-
-        expect(template).to.equal(expectedTemplate);
-      });
-
-      it('withConnect', () => {
-        const component = new Component('ComponentName', { withConnect: true });
-        const template = component.buildTemplate();
-
-        const expectedImports = [templates.imports.react, templates.imports.connect];
-        const expectedBody = [templates.main].join('\n');
-        const expectedExport = [templates.exported.withConnect];
-        const expectedTemplate = expectedImports.join('\n') + '\n' + expectedBody + '\n' + expectedExport;
-
-        expect(template).to.equal(expectedTemplate);
-      });
-
-      it('style', () => {
-        const component = new Component('ComponentName', { style: true });
-        const template = component.buildTemplate();
-
-        const expectedImports = [templates.imports.react, '\n' + templates.imports.stylesheet];
-        const expectedBody = [templates.main].join('\n');
-        const expectedExport = [templates.exported.default];
-        const expectedTemplate = expectedImports.join('\n') + '\n' + expectedBody + '\n' + expectedExport;
-
-        expect(template).to.equal(expectedTemplate);
-      });
-
-      it('withConnect and style', () => {
-        const component = new Component(componentName, { withConnect: true, style: true });
-        const template = component.buildTemplate();
-
-        const expectedImports = [
-          templates.imports.react,
-          templates.imports.connect,
-          '\n' + templates.imports.stylesheet,
-        ];
-        const expectedBody = [templates.main].join('\n');
-        const expectedExport = [templates.exported.withConnect];
-        const expectedTemplate = expectedImports.join('\n') + '\n' + expectedBody + '\n' + expectedExport;
-
-        expect(template).to.equal(expectedTemplate);
       });
     });
   });
@@ -146,7 +106,7 @@ describe('Component', () => {
     let manageComponentsIndexFileStub;
 
     beforeEach(() => {
-      component = new Component(componentName);
+      component = new Component({ component: componentName });
       writeComponentFileStub = sinon.stub(component, 'writeComponentFile');
       writeComponentIndexFileStub = sinon.stub(component, 'writeComponentIndexFile');
       manageComponentsIndexFileStub = sinon.stub(component, 'manageComponentsIndexFile');
@@ -188,7 +148,7 @@ describe('Component', () => {
     beforeEach(() => {
       outputFileStub = sinon.stub(fs, 'outputFile');
       existsSyncStub = sinon.stub(fs, 'existsSync');
-      component = new Component(componentName);
+      component = new Component({ component: componentName });
     });
     afterEach(() => {
       outputFileStub.restore();
@@ -223,7 +183,7 @@ describe('Component', () => {
 
     beforeEach(() => {
       outputFileSyncStub = sinon.stub(fs, 'outputFileSync');
-      component = new Component(componentName, { style: true });
+      component = new Component({ component: componentName, options: { style: true } });
     });
     afterEach(() => outputFileSyncStub.restore());
 
@@ -242,7 +202,7 @@ describe('Component', () => {
         component.writeStylesFile();
 
         expect(fs.outputFileSync).to.have.been.calledWith(expectedComponentStylesPath, '');
-        getConfigStub.callsFake(() => defaults);
+        getConfigStub.callsFake(getDefaultConfig);
       });
     });
 
@@ -264,7 +224,7 @@ describe('Component', () => {
 
     beforeEach(() => {
       outputFileStub = sinon.stub(fs, 'outputFile');
-      component = new Component(componentName);
+      component = new Component({ component: componentName });
     });
     afterEach(() => outputFileStub.restore());
 
@@ -296,7 +256,7 @@ describe('Component', () => {
       mock({
         components: {},
       });
-      component = new Component(componentName);
+      component = new Component({ component: componentName });
       updateComponentsIndexFileStub = sinon.stub(component, 'updateComponentsIndexFile');
       createComponentsIndexFileStub = sinon.stub(component, 'createComponentsIndexFile');
       existsSyncStub = sinon.stub(fs, 'existsSync');
@@ -341,7 +301,7 @@ describe('Component', () => {
         existsSyncStub.callsFake(() => true);
         const name = 'header';
         const directories = [componentName, subComponentName, name];
-        component = new Component(directories.join('/'));
+        component = new Component({ component: directories.join('/') });
         updateComponentsIndexFileStub = sinon.stub(component, 'updateComponentsIndexFile');
         createComponentsIndexFileStub = sinon.stub(component, 'createComponentsIndexFile');
 
@@ -364,7 +324,7 @@ describe('Component', () => {
     let component;
 
     beforeEach(() => {
-      component = new Component(componentName);
+      component = new Component({ component: componentName });
       outputFileStub = sinon.stub(fs, 'outputFile');
       readFileStub = sinon.stub(fs, 'readFile')
         .callsFake((path, format, cb) => cb('', indexBaseContent + '\n'));

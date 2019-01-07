@@ -1,27 +1,58 @@
-const main = `
+const hooks = require('./hooks');
+
+const classComponents = {
+  default: `
 class :className extends React.PureComponent {
   state = {
-
   }
 
   render() {
     return (
       <div className=":className">
-
       </div>
     )
   }
 }
-`;
+`,
+  nextjs: `
+class :className extends React.PureComponent {
+  state = {
+  }${hooks.component.getInitialProps}
 
-const functional = `
+  render() {
+    return (
+      <>
+
+        <style jsx>{\`
+        \`}</style>
+      </>
+    )
+  }
+}
+`,
+};
+
+const functionalComponents = {
+  default: `
 const :className = () => {
   return (
     <div className=":className">
     </div>
   )
 }
-`;
+`,
+  nextjs: `
+const :className = () => {
+  return (
+    <>
+
+      <style jsx>{\`
+      \`}</style>
+    </>
+  )
+}
+`,
+};
 
 const imports = {
   react: "import React from 'react';",
@@ -40,9 +71,9 @@ const indexes = {
 };
 
 module.exports = {
-  main,
+  classComponents,
+  functionalComponents,
   imports,
   exported,
-  functional,
   indexes,
 };
