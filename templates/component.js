@@ -1,37 +1,61 @@
-const main = `
+const hooks = require('./hooks');
+
+const classComponents = {
+  default: `
 class :className extends React.PureComponent {
   state = {
-
   }
 
   render() {
     return (
       <div className=":className">
-
       </div>
     )
   }
 }
+`,
+  nextjs: `
+class :className extends React.PureComponent {
+  state = {
+  }${hooks.component.getInitialProps}
 
-:className.propTypes = {
+  render() {
+    return (
+      <>
+
+        <style jsx>{\`
+        \`}</style>
+      </>
+    )
+  }
 }
-`;
+`,
+};
 
-const functional = `
+const functionalComponents = {
+  default: `
 const :className = () => {
   return (
     <div className=":className">
     </div>
   )
 }
+`,
+  nextjs: `
+const :className = () => {
+  return (
+    <>
 
-:className.propTypes = {
+      <style jsx>{\`
+      \`}</style>
+    </>
+  )
 }
-`;
+`,
+};
 
 const imports = {
   react: "import React from 'react';",
-  propTypes: "import PropTypes from 'prop-types';",
   stylesheet: "import './:className.scss';",
   connect: "import { connect } from 'react-redux';",
 };
@@ -43,13 +67,13 @@ const exported = {
 
 const indexes = {
   default: "export { default } from './:className'",
-  named: "export { default as :className } from ':basePath/:className'",
+  named: "export { default as :className } from ':basePath'",
 };
 
 module.exports = {
-  main,
+  classComponents,
+  functionalComponents,
   imports,
   exported,
-  functional,
   indexes,
 };
