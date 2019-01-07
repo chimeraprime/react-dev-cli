@@ -1,5 +1,5 @@
 {
-  "name": "@chimeraprime/react-cli",
+  "name": "@chimeraprime/react-dev-cli",
   "version": "1.0.0",
   "description": "Command tool to improve React development",
   "main": "index.js",
@@ -19,7 +19,9 @@
   },
   "keywords": [
     "react",
-    "cli"
+    "cli",
+    "javascript",
+    "dev-tools"
   ],
   "author": "Daniel Siwek",
   "license": "MIT",
@@ -33,7 +35,7 @@
     "@chimeraprime/eslint-config-chimera-prime": "1.0.4",
     "chai": "4.1.2",
     "eslint": "5.6.0",
-    "husky": "^1.2.0",
+    "husky": "1.2.0",
     "mocha": "5.2.0",
     "mock-fs": "4.7.0",
     "sinon": "6.3.4",
