@@ -1,10 +1,14 @@
 {
   "name": "@chimeraprime/react-dev-cli",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Command tool to improve React development",
   "main": "index.js",
   "bin": {
     "rdc": "./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chimeraprime/react-dev-cli.git"
   },
   "scripts": {
     "test": "mocha $(find . -name '*.spec.js' ! -ipath '*node_modules*')",
