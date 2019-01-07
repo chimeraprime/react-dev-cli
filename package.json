@@ -1,5 +1,5 @@
 {
-  "name": "react-cli",
+  "name": "@chimeraprime/react-cli",
   "version": "1.0.0",
   "description": "Command tool to improve React development",
   "main": "index.js",
