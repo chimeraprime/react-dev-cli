@@ -6,6 +6,10 @@
   "bin": {
     "rdc": "./index.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chimeraprime/react-dev-cli.git"
+  },
   "scripts": {
     "test": "mocha $(find . -name '*.spec.js' ! -ipath '*node_modules*')",
     "test:watch": "yarn test -- -w",
