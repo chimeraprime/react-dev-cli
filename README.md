@@ -3,10 +3,10 @@
 A command line tool that helps automate repeatable actions during react application development, like creating a new component or reducer structure. :construction_worker:
 
 ## Install :hammer:
->```npm install -g react-dev-cli```
+>```npm install -g @chimeraprime/react-dev-cli```
 
 or
->```yarn global add react-dev-cli```
+>```yarn global add @chimeraprime/react-dev-cli```
 
 ### Config :wrench:
 To define config create a `.rdc` file in the root directory of your application.
