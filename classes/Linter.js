@@ -12,7 +12,7 @@ class Linter {
   }
 
   fix(relPath) {
-    exec(`${this.eslintPath} ${process.cwd()}/${relPath} --fix`, (error, stdout, stderr) => {
+    exec(`${this.eslintPath} ${process.cwd()}/${relPath} --fix --color`, (error, stdout, stderr) => {
       console.log(`stdout: ${stdout}`);
       console.log(`stderr: ${stderr}`);
       if (error !== null) {
