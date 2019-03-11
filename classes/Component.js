@@ -86,7 +86,7 @@ class Component {
 
   writeStylesFile() {
     const stylesAbsolutePath = `${process.cwd()}/${this.filePath}.${Component.getConfig().stylesType}`;
-
+    console.log(Component.getConfig());
     if (!fs.existsSync(stylesAbsolutePath)) {
       console.log('creating syles...');
       fs.outputFileSync(stylesAbsolutePath, '');

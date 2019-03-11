@@ -12,8 +12,8 @@ const templates = require('../templates/component');
 
 const { capitalize } = require('../utils');
 const { defaultConfig } = require('../config');
-const getDefaultConfig = () => new Proxy({}, defaultConfig);
-const getConfigStub = sinon.stub(Component, 'getConfig').callsFake(getDefaultConfig);
+
+const getConfigStub = sinon.stub(Component, 'getConfig').callsFake(() => defaultConfig);
 
 describe('Component', () => {
   const componentName = 'list';
@@ -202,7 +202,7 @@ describe('Component', () => {
         component.writeStylesFile();
 
         expect(fs.outputFileSync).to.have.been.calledWith(expectedComponentStylesPath, '');
-        getConfigStub.callsFake(getDefaultConfig);
+        getConfigStub.callsFake(() => defaultConfig);
       });
     });
 

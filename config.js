@@ -1,39 +1,35 @@
 const fs = require('fs-extra');
-
 const defaultConfig = {
-  get: (target, name) => {
-    const getValue = defaultVal => target.hasOwnProperty(name) ? target[name] : defaultVal;
-
-    switch (name) {
-      case 'framework':
-        return getValue('default');
-      case 'root':
-        return getValue('.');
-      case 'stylesType':
-        return getValue('css');
-
-      default:
-        return getValue(undefined);
-    }
-  },
+  framework: 'default',
+  root: '.',
+  stylesType: 'css',
 };
 
-const getConfig = () => {
+function getConfig() {
   try {
     const config = fs.readFileSync(`${process.cwd()}/.rdc`, 'utf8');
     const jsonConfig = config ? JSON.parse(config) : {};
 
-    return new Proxy(jsonConfig || {}, defaultConfig);
+    return { ...jsonConfig, ...defaultConfig };
   } catch (error) {
     if (error.code === 'ENOENT') {
       console.log('File .rdc not found!'.red);
-      return new Proxy({}, defaultConfig);
+      return defaultConfig;
     }
     throw error;
   }
-};
+}
+
+function createConfigFile() {
+  const configPath = `${process.cwd()}/.rdc`;
+
+  if (!fs.existsSync(configPath)) {
+    fs.outputFileSync(configPath, JSON.stringify(getConfig(), null, 2));
+  }
+}
 
 module.exports = {
   defaultConfig,
   getConfig,
+  createConfigFile,
 };

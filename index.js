@@ -7,6 +7,7 @@ const { getConfig } = require('./config');
 const config = getConfig();
 
 const generateComponent = require('./actions/generateComponent');
+const initProject = require('./actions/initProject');
 const { cond } = require('./utils/index');
 const isNextJS = config.framework === 'nextjs';
 
@@ -32,6 +33,10 @@ if (isNextJS) {
       subfolder: 'pages',
     }));
 }
+
+program
+  .command('init')
+  .action(initProject);
 
 program
   .command('config')
