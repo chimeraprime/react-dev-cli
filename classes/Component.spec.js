@@ -20,6 +20,7 @@ describe('Component', () => {
   const subComponentName = 'listItem';
 
   afterEach(mock.restore);
+
   it('should be a class', () => {
     expect(Component.prototype.constructor).to.be.a('function');
   });
@@ -157,15 +158,7 @@ describe('Component', () => {
 
     it('should manage with proper path', () => {
       component.writeComponentFile();
-
       expect(outputFileSyncStub).to.have.been.calledWith(expectedPath);
-    });
-
-    it('should write file when doesn\'t exist', () => {
-      existsSyncStub.callsFake(() => false);
-      component.writeComponentFile();
-
-      expect(outputFileSyncStub).to.have.been.called;
     });
 
     it('should not write file when already exists', () => {

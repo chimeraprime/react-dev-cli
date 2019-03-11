@@ -43,6 +43,18 @@ class Component {
     return require('../config').getConfig();
   }
 
+  replaceClassName(path) {
+    if (fs.existsSync(path)) {
+      replace({
+        regex: ':className',
+        replacement: this.componentName,
+        paths: [path],
+        recursive: false,
+        silent: true,
+      });
+    }
+  }
+
   generateComponent() {
     const template = getTemplate({
       strategy: Component.getConfig().framework,
@@ -70,19 +82,13 @@ class Component {
       try {
         console.log('creating component file...');
         fs.outputFileSync(absolutePath, template);
-        replace({
-          regex: ':className',
-          replacement: this.componentName,
-          paths: [`${this.filePath}.js`],
-          recursive: false,
-          silent: true,
-        });
+        this.replaceClassName(`${this.filePath}.js`);
         console.log(`Component ${this.componentName} created at ${this.filePath}.js`.cyan);
       } catch (error) {
-        // console.log(error);
+        throw error;
       }
     } else {
-      console.log(`Component ${this.componentName} allready exists at ${this.filePath}.js, choose another name if you want to create a new component`.red);
+      console.log(`Component ${this.componentName} already exists at ${this.filePath}.js, choose another name if you want to create a new component`.red);
     }
   }
 
@@ -104,16 +110,10 @@ class Component {
     if (!fs.existsSync(absoluteIndexPath)) {
       try {
         fs.outputFileSync(absoluteIndexPath, templates.indexes.default);
-        replace({
-          regex: ':className',
-          replacement: this.componentName,
-          paths: [absoluteIndexPath],
-          recursive: false,
-          silent: true,
-        });
+        this.replaceClassName(absoluteIndexPath);
         console.log(`Index file for ${this.componentName} created at ${absoluteIndexPath}`.cyan);
       } catch (error) {
-        // console.log(error);
+        throw error;
       }
     } else {
       console.log(`Index file for ${this.componentName} has been already added`.red);
