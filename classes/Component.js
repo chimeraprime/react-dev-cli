@@ -67,9 +67,9 @@ class Component {
     const absolutePath = `${process.cwd()}/${this.filePath}.js`;
 
     if (!fs.existsSync(absolutePath)) {
-      console.log('creating component file...');
-      fs.outputFile(absolutePath, template, err => {
-        if (err) throw err;
+      try {
+        console.log('creating component file...');
+        fs.outputFileSync(absolutePath, template);
         replace({
           regex: ':className',
           replacement: this.componentName,
@@ -78,7 +78,9 @@ class Component {
           silent: true,
         });
         console.log(`Component ${this.componentName} created at ${this.filePath}.js`.cyan);
-      });
+      } catch (error) {
+        throw error;
+      }
     } else {
       console.log(`Component ${this.componentName} allready exists at ${this.filePath}.js, choose another name if you want to create a new component`.red);
     }
@@ -100,8 +102,8 @@ class Component {
     const absoluteIndexPath = path.normalize(`${process.cwd()}/${this.folderPath}/index.js`);
 
     if (!fs.existsSync(absoluteIndexPath)) {
-      fs.outputFile(absoluteIndexPath, templates.indexes.default, err => {
-        if (err) throw err;
+      try {
+        fs.outputFileSync(absoluteIndexPath, templates.indexes.default);
         replace({
           regex: ':className',
           replacement: this.componentName,
@@ -110,7 +112,9 @@ class Component {
           silent: true,
         });
         console.log(`Index file for ${this.componentName} created at ${absoluteIndexPath}`.cyan);
-      });
+      } catch (error) {
+        throw error;
+      }
     } else {
       console.log(`Index file for ${this.componentName} has been already added`.red);
     }
@@ -131,16 +135,17 @@ class Component {
   }
 
   createComponentsIndexFile(path, content) {
-    fs.outputFile(path, content, err => {
-      if (err) throw err;
+    try {
+      fs.outputFileSync(path, content);
       console.log(`Index file for ${this.componentPath} created at ${path}`.cyan);
-    });
+    } catch (error) {
+      throw error;
+    }
   }
 
   updateComponentsIndexFile(path, content) {
-    fs.readFile(path, 'utf8', (err, indexContent) => {
-      if (err) throw err;
-
+    try {
+      const indexContent = fs.readFileSync(path, 'utf8');
       const indexContentLines = indexContent.split('\n').filter((item, index, arr) => {
         const isLastIndex = index + 1 === arr.length;
 
@@ -152,15 +157,19 @@ class Component {
 
         const indexContentToSave = indexContentLines.join('\n') + '\n';
 
-        fs.outputFile(path, indexContentToSave, err => {
-          if (err) throw err;
+        try {
+          fs.outputFileSync(path, indexContentToSave);
 
           console.log(`Component ${this.componentPath} has been exported`.cyan);
-        });
+        } catch (error) {
+          throw error;
+        }
       } else {
         console.log(`Component ${this.componentPath} has been already exported`.red);
       }
-    });
+    } catch (error) {
+      throw error;
+    }
   }
 }
 
