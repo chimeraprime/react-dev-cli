@@ -79,7 +79,7 @@ class Component {
         });
         console.log(`Component ${this.componentName} created at ${this.filePath}.js`.cyan);
       } catch (error) {
-        throw error;
+        // console.log(error);
       }
     } else {
       console.log(`Component ${this.componentName} allready exists at ${this.filePath}.js, choose another name if you want to create a new component`.red);
@@ -113,7 +113,7 @@ class Component {
         });
         console.log(`Index file for ${this.componentName} created at ${absoluteIndexPath}`.cyan);
       } catch (error) {
-        throw error;
+        // console.log(error);
       }
     } else {
       console.log(`Index file for ${this.componentName} has been already added`.red);
@@ -157,13 +157,9 @@ class Component {
 
         const indexContentToSave = indexContentLines.join('\n') + '\n';
 
-        try {
-          fs.outputFileSync(path, indexContentToSave);
+        fs.outputFileSync(path, indexContentToSave);
 
-          console.log(`Component ${this.componentPath} has been exported`.cyan);
-        } catch (error) {
-          throw error;
-        }
+        console.log(`Component ${this.componentPath} has been exported`.cyan);
       } else {
         console.log(`Component ${this.componentPath} has been already exported`.red);
       }
