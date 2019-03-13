@@ -8,6 +8,8 @@ const fs = require('fs-extra');
 
 const Linter = require('./Linter');
 
+const CHIMERA_CONFIG_NAME = '@chimeraprime/eslint-config-chimera-prime';
+
 describe('Liner', () => {
   it('should be a class', () => {
     expect(Linter.prototype.constructor).to.be.a('function');
@@ -16,11 +18,12 @@ describe('Liner', () => {
   describe('[getExtendedConfig]', () => {
     describe('if no extends defined', () => {
       it('should return config extended only with chimera config', () => {
+        const linter = new Linter();
         const config = {};
         const expectedConfig = {
-          extends: Linter.CHIMERA_EXTEND,
+          extends: CHIMERA_CONFIG_NAME,
         };
-        const extendedConfig = Linter.getExtendedConfig(config);
+        const extendedConfig = linter.getExtendedConfig(config);
 
         expect(extendedConfig).to.deep.equal(expectedConfig);
       });
@@ -28,25 +31,27 @@ describe('Liner', () => {
 
     describe('if single extends defined', () => {
       it('should return config extended with chimera config and already defined config', () => {
+        const linter = new Linter();
         const config = {
           extends: 'testConfig',
         };
         const expectedConfig = {
           extends: [
             config.extends,
-            Linter.CHIMERA_EXTEND,
+            CHIMERA_CONFIG_NAME,
           ],
         };
-        const extendedConfig = Linter.getExtendedConfig(config);
+        const extendedConfig = linter.getExtendedConfig(config);
 
         expect(extendedConfig).to.deep.equal(expectedConfig);
       });
 
       it('should return config extended with chimera config with no duplications', () => {
+        const linter = new Linter();
         const config = {
-          extends: Linter.CHIMERA_EXTEND,
+          extends: CHIMERA_CONFIG_NAME,
         };
-        const extendedConfig = Linter.getExtendedConfig(config);
+        const extendedConfig = linter.getExtendedConfig(config);
 
         expect(extendedConfig).to.deep.equal(config);
       });
@@ -54,6 +59,7 @@ describe('Liner', () => {
 
     describe('if multiple extends defined', () => {
       it('should return config extended with chimera config and rest of already defined configs', () => {
+        const linter = new Linter();
         const config = {
           extends: [
             'testConfig1',
@@ -63,29 +69,30 @@ describe('Liner', () => {
         const expectedConfig = {
           extends: [
             ...config.extends,
-            Linter.CHIMERA_EXTEND,
+            CHIMERA_CONFIG_NAME,
           ],
         };
-        const extendedConfig = Linter.getExtendedConfig(config);
+        const extendedConfig = linter.getExtendedConfig(config);
 
         expect(extendedConfig).to.deep.equal(expectedConfig);
       });
 
       it('should return config extended with chimera config with no duplications', () => {
+        const linter = new Linter();
         const config = {
           extends: [
             'testConfig1',
-            Linter.CHIMERA_EXTEND,
+            CHIMERA_CONFIG_NAME,
           ],
         };
-        const extendedConfig = Linter.getExtendedConfig(config);
+        const extendedConfig = linter.getExtendedConfig(config);
 
         expect(extendedConfig).to.deep.equal(config);
       });
     });
   });
 
-  describe('[createChimeraEslintConfig]', () => {
+  describe('[createEslintConfigFile]', () => {
     const linter = new Linter();
 
     let outputFileSyncStub;
@@ -109,11 +116,11 @@ describe('Liner', () => {
       };
       const expectedConfig = {
         ...config,
-        extends: Linter.CHIMERA_EXTEND,
+        extends: CHIMERA_CONFIG_NAME,
       };
       readFileSyncStub.callsFake(() => JSON.stringify(config));
 
-      linter.createChimeraEslintConfig();
+      linter.createEslintConfigFile();
 
       expect(outputFileSyncStub).to.have.been.calledWith(
         Linter.CONFIG_PATH,
@@ -129,10 +136,10 @@ describe('Liner', () => {
         throw err;
       });
       const expectedConfig = {
-        extends: Linter.CHIMERA_EXTEND,
+        extends: CHIMERA_CONFIG_NAME,
       };
 
-      linter.createChimeraEslintConfig();
+      linter.createEslintConfigFile();
 
       expect(outputFileSyncStub).to.have.been.calledWith(
         Linter.CONFIG_PATH,

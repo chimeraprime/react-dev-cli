@@ -3,6 +3,8 @@ const fs = require('fs-extra');
 
 const Enum = require('../utils/Enum');
 
+const { supportedEslintConfigs } = require('../constants');
+
 const customExec = command => {
   console.log('Executing:', command.gray, '\n');
 
@@ -22,24 +24,26 @@ class Linter {
   constructor() {
     this.eslintPath = `${process.cwd()}/node_modules/.bin/eslint`;
     this.isEslintInstalled = fs.existsSync(this.eslintPath);
+    this.configProvider = 'chimeraPrime';
 
     if (!this.isEslintInstalled) {
       throw new Error('Install eslint in the project!');
     }
   }
 
-  static get CHIMERA_EXTEND() {
-    return '@chimeraprime/eslint-config-chimera-prime';
+  get CONFIG_NAME() {
+    return supportedEslintConfigs[this.configProvider] || supportedEslintConfigs.chimeraPrime;
   }
   static get CONFIG_PATH() {
     return `${process.cwd()}/.eslintrc`;
   }
-  static getExtendedConfig(config = {}) {
+
+  getExtendedConfig(config = {}) {
     const extendedConfig = { ...config };
     const strategies = new Enum('string', 'array');
-    const strategy = typeof config.extends === 'string' && config.extends !== Linter.CHIMERA_EXTEND
+    const strategy = typeof config.extends === 'string' && config.extends !== this.CONFIG_NAME
       ? strategies.string
-      : Array.isArray(config.extends) && !config.extends.includes(Linter.CHIMERA_EXTEND)
+      : Array.isArray(config.extends) && !config.extends.includes(this.CONFIG_NAME)
         ? strategies.array
         : null;
 
@@ -48,19 +52,19 @@ class Linter {
         case strategies.string:
           extendedConfig.extends = [
             config.extends,
-            Linter.CHIMERA_EXTEND,
+            this.CONFIG_NAME,
           ];
           break;
 
         case strategies.array:
-          extendedConfig.extends.push(Linter.CHIMERA_EXTEND);
+          extendedConfig.extends.push(this.CONFIG_NAME);
           break;
 
         default:
           break;
       }
     } else {
-      extendedConfig.extends = Linter.CHIMERA_EXTEND;
+      extendedConfig.extends = this.CONFIG_NAME;
     }
 
     return extendedConfig;
@@ -74,21 +78,21 @@ class Linter {
     customExec('yarn add eslint babel-eslint eslint-plugin-react eslint-plugin-import -D');
   }
 
-  installChimeraConfig() {
-    customExec(`yarn add ${Linter.CHIMERA_EXTEND} -D`);
+  installConfig() {
+    customExec(`yarn add ${this.CONFIG_NAME} -D`);
   }
 
-  createChimeraEslintConfig() {
+  createEslintConfigFile() {
     let configToSave = {};
 
     try {
       const currentConfig = fs.readFileSync(Linter.CONFIG_PATH, 'utf8');
       const jsonConfig = JSON.parse(currentConfig);
 
-      configToSave = Linter.getExtendedConfig(jsonConfig);
+      configToSave = this.getExtendedConfig(jsonConfig);
     } catch (error) {
       if (error.code === 'ENOENT') {
-        configToSave.extends = Linter.CHIMERA_EXTEND;
+        configToSave.extends = this.CONFIG_NAME;
       }
     } finally {
       fs.outputFileSync(Linter.CONFIG_PATH, JSON.stringify(configToSave, null, 2));
@@ -97,8 +101,8 @@ class Linter {
 
   setupChimeraEslint() {
     this.installEslint();
-    this.installChimeraConfig();
-    this.createChimeraEslintConfig();
+    this.installConfig();
+    this.createEslintConfigFile();
   }
 }
 
