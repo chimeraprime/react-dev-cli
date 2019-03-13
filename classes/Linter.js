@@ -42,23 +42,25 @@ class Linter {
   getExtendedConfig(config = {}) {
     const extendedConfig = { ...config };
     const strategies = new Enum('string', 'array');
-    const strategy = typeof config.extends === 'string' && config.extends !== this.CONFIG_NAME
-      ? strategies.string
-      : Array.isArray(config.extends) && !config.extends.includes(this.CONFIG_NAME)
-        ? strategies.array
-        : null;
+    const strategy = Array.isArray(config.extends)
+      ? strategies.array
+      : strategies.string;
 
-    if (config.hasOwnProperty('extends')) {
+    if (config.extends) {
       switch (strategy) {
         case strategies.string:
-          extendedConfig.extends = [
-            config.extends,
-            this.CONFIG_NAME,
-          ];
+          if (config.extends !== this.CONFIG_NAME) {
+            extendedConfig.extends = [
+              config.extends,
+              this.CONFIG_NAME,
+            ];
+          }
           break;
 
         case strategies.array:
-          extendedConfig.extends.push(this.CONFIG_NAME);
+          if (!config.extends.includes(this.CONFIG_NAME)) {
+            extendedConfig.extends.push(this.CONFIG_NAME);
+          }
           break;
 
         default:

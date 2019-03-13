@@ -16,10 +16,23 @@ describe('Liner', () => {
   });
 
   describe('[getExtendedConfig]', () => {
-    describe('if no extends defined', () => {
-      it('should return config extended only with chimera config', () => {
+    describe('should return config extended only with chimera config', () => {
+      it('if extends doesn\'t exist', () => {
         const linter = new Linter();
         const config = {};
+        const expectedConfig = {
+          extends: CHIMERA_CONFIG_NAME,
+        };
+        const extendedConfig = linter.getExtendedConfig(config);
+
+        expect(extendedConfig).to.deep.equal(expectedConfig);
+      });
+
+      it('if extends is empty string', () => {
+        const linter = new Linter();
+        const config = {
+          extends: '',
+        };
         const expectedConfig = {
           extends: CHIMERA_CONFIG_NAME,
         };
