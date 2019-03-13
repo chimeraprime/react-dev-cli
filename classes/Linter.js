@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 const Enum = require('../utils/Enum');
 
 const customExec = command => {
-  console.log('Executing:', `${command}`.gray);
+  console.log('Executing:', command.gray, '\n');
 
   exec(
     command,

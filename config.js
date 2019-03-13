@@ -24,6 +24,7 @@ function createConfigFile() {
   const configPath = `${process.cwd()}/.rdc`;
 
   if (!fs.existsSync(configPath)) {
+    console.log('Creating:', configPath.gray);
     fs.outputFileSync(configPath, JSON.stringify(getConfig(), null, 2));
   }
 }
