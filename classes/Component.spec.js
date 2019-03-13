@@ -6,11 +6,11 @@ const expect = chai.expect;
 chai.use(sinonChai);
 
 const fs = require('fs-extra');
+const capitalize = require('lodash.capitalize');
 
 const Component = require('./Component');
 const templates = require('../templates/component');
 
-const { capitalize } = require('../utils');
 const { defaultConfig } = require('../config');
 
 const getConfigStub = sinon.stub(Component, 'getConfig').callsFake(() => defaultConfig);

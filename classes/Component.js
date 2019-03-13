@@ -1,11 +1,10 @@
 const fs = require('fs-extra');
 const path = require('path');
 const replace = require('replace');
+const capitalize = require('lodash.capitalize');
 
 const templates = require('../templates/component');
 const { getTemplate } = require('./StrategyService');
-
-const { capitalize } = require('../utils');
 
 const defaultOptions = {
   get: (target, name) => {
