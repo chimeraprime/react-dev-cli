@@ -8,32 +8,33 @@ const { supportedEslintConfigs } = require('../constants');
 const customExec = command => {
   console.log('Executing:', command.gray, '\n');
 
-  exec(
-    command,
-    (error, stdout, stderr) => {
-      console.log(stdout);
-      stderr && console.log(`stderr: ${stderr}`);
+  return new Promise((resolve, reject) => {
+    exec(
+      command,
+      (error, stdout, stderr) => {
+        console.log(stdout);
+        stderr && console.log(`stderr: ${stderr}`);
 
-      if (error !== null) {
-        console.log(`exec error: ${error}`);
-      }
-    });
+        if (error !== null) {
+          console.log(`exec error: ${error}`);
+          reject();
+        }
+
+        resolve();
+      });
+  });
 };
 
 class Linter {
   constructor() {
     this.eslintPath = `${process.cwd()}/node_modules/.bin/eslint`;
-    this.isEslintInstalled = fs.existsSync(this.eslintPath);
     this.configProvider = 'chimeraPrime';
-
-    if (!this.isEslintInstalled) {
-      throw new Error('Install eslint in the project!');
-    }
   }
 
   get CONFIG_NAME() {
     return supportedEslintConfigs[this.configProvider] || supportedEslintConfigs.chimeraPrime;
   }
+
   static get CONFIG_PATH() {
     return `${process.cwd()}/.eslintrc`;
   }
@@ -74,12 +75,20 @@ class Linter {
     customExec(`${this.eslintPath} ${process.cwd()}/${relPath} --fix --color`);
   }
 
-  installEslint() {
-    customExec('yarn add eslint babel-eslint eslint-plugin-react eslint-plugin-import -D');
+  async installConfig() {
+    await customExec(`yarn add ${this.CONFIG_NAME} -D`);
+
+    this.installConfigPeerDeps();
   }
 
-  installConfig() {
-    customExec(`yarn add ${this.CONFIG_NAME} -D`);
+  installConfigPeerDeps() {
+    const pkg = require(`${process.cwd()}/node_modules/${this.CONFIG_NAME}/package.json`);
+    const entries = Object.entries(pkg.peerDependencies);
+    const depsToInstall = entries.reduce((acc, [dep, version]) => {
+      return `${acc} '${dep}@${version}'`;
+    }, '');
+
+    customExec(`yarn add ${depsToInstall} -D`);
   }
 
   createEslintConfigFile() {
@@ -99,8 +108,7 @@ class Linter {
     }
   }
 
-  setupChimeraEslint() {
-    this.installEslint();
+  setup() {
     this.installConfig();
     this.createEslintConfigFile();
   }

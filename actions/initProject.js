@@ -5,7 +5,7 @@ function initProject() {
   config.createConfigFile();
 
   const linter = new Linter();
-  linter.setupChimeraEslint();
+  linter.setup();
 }
 
 module.exports = initProject;
