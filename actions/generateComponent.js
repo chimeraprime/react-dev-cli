@@ -1,4 +1,5 @@
 const Component = require('../classes/Component');
+const Linter = require('../classes/Linter');
 
 function generateComponent(component, cmd, additionalOptions) {
   const { _events = {} } = cmd;
@@ -16,7 +17,9 @@ function generateComponent(component, cmd, additionalOptions) {
       ...additionalOptions,
     },
   });
+  const linter = new Linter();
   componentInstance.generateComponent();
+  linter.fix(componentInstance.folderPath);
 }
 
 module.exports = generateComponent;

@@ -20,6 +20,7 @@ describe('Component', () => {
   const subComponentName = 'listItem';
 
   afterEach(mock.restore);
+
   it('should be a class', () => {
     expect(Component.prototype.constructor).to.be.a('function');
   });
@@ -141,38 +142,30 @@ describe('Component', () => {
 
   describe('[writeComponentFile]', () => {
     const expectedPath = `${process.cwd()}/${capitalize(componentName)}/${capitalize(componentName)}.js`;
-    let outputFileStub;
+    let outputFileSyncStub;
     let existsSyncStub;
     let component;
 
     beforeEach(() => {
-      outputFileStub = sinon.stub(fs, 'outputFile');
+      outputFileSyncStub = sinon.stub(fs, 'outputFileSync');
       existsSyncStub = sinon.stub(fs, 'existsSync');
       component = new Component({ component: componentName });
     });
     afterEach(() => {
-      outputFileStub.restore();
+      outputFileSyncStub.restore();
       existsSyncStub.restore();
     });
 
     it('should manage with proper path', () => {
       component.writeComponentFile();
-
-      expect(outputFileStub).to.have.been.calledWith(expectedPath);
-    });
-
-    it('should write file when doesn\'t exist', () => {
-      existsSyncStub.callsFake(() => false);
-      component.writeComponentFile();
-
-      expect(outputFileStub).to.have.been.called;
+      expect(outputFileSyncStub).to.have.been.calledWith(expectedPath);
     });
 
     it('should not write file when already exists', () => {
       existsSyncStub.callsFake(() => true);
       component.writeComponentFile();
 
-      expect(outputFileStub).to.have.not.been.called;
+      expect(outputFileSyncStub).to.have.not.been.called;
     });
   });
 
@@ -219,19 +212,19 @@ describe('Component', () => {
 
   describe('[writeComponentIndexFile]', () => {
     const indexPath = `${process.cwd()}/${capitalize(componentName)}/index.js`;
-    let outputFileStub;
+    let outputFileSyncStub;
     let component;
 
     beforeEach(() => {
-      outputFileStub = sinon.stub(fs, 'outputFile');
+      outputFileSyncStub = sinon.stub(fs, 'outputFileSync');
       component = new Component({ component: componentName });
     });
-    afterEach(() => outputFileStub.restore());
+    afterEach(() => outputFileSyncStub.restore());
 
     it('should create index file for a component, when doesn\'t exist', () => {
       component.writeComponentIndexFile();
 
-      expect(outputFileStub).to.have.been.calledWith(indexPath, templates.indexes.default);
+      expect(outputFileSyncStub).to.have.been.calledWith(indexPath, templates.indexes.default);
     });
 
     it('should not create index file for component when already exists', () => {
@@ -241,7 +234,7 @@ describe('Component', () => {
 
       component.writeComponentIndexFile();
 
-      expect(outputFileStub).to.have.not.been.called;
+      expect(outputFileSyncStub).to.have.not.been.called;
     });
   });
 
@@ -319,19 +312,19 @@ describe('Component', () => {
   describe('[updateComponentsIndexFile]', () => {
     const path = 'components/index.js';
     const indexBaseContent = "export { default as AnotherComponent } from './AnotherComponent'";
-    let outputFileStub;
-    let readFileStub;
+    let outputFileSyncStub;
+    let readFileSyncStub;
     let component;
 
     beforeEach(() => {
       component = new Component({ component: componentName });
-      outputFileStub = sinon.stub(fs, 'outputFile');
-      readFileStub = sinon.stub(fs, 'readFile')
-        .callsFake((path, format, cb) => cb('', indexBaseContent + '\n'));
+      outputFileSyncStub = sinon.stub(fs, 'outputFileSync');
+      readFileSyncStub = sinon.stub(fs, 'readFileSync')
+        .callsFake(() => indexBaseContent + '\n');
     });
     afterEach(() => {
-      outputFileStub.restore();
-      readFileStub.restore();
+      outputFileSyncStub.restore();
+      readFileSyncStub.restore();
     });
 
     it('should update file when content is not duplicated', () => {
@@ -339,12 +332,12 @@ describe('Component', () => {
       const expectedContent = `${indexBaseContent}\n${content}\n`;
 
       component.updateComponentsIndexFile(path, content);
-      expect(outputFileStub).to.have.been.calledWithMatch(path, expectedContent);
+      expect(outputFileSyncStub).to.have.been.calledWithMatch(path, expectedContent);
     });
 
     it('should not update file when content is duplicated', () => {
       component.updateComponentsIndexFile(path, indexBaseContent);
-      expect(outputFileStub).to.have.not.been.called;
+      expect(outputFileSyncStub).to.have.not.been.called;
     });
   });
 });
